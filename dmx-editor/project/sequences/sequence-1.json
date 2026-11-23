@@ -1,0 +1,19 @@
+{
+  "format": "lbe-sequence",
+  "version": 1,
+  "id": "sequence-1",
+  "name": "Sequence 1",
+  "experience": "Sequence 1",
+  "fps": 40,
+  "bits": 8,
+  "durationMs": null,
+  "level": 1,
+  "sampling": "projection",
+  "sampleSize": 256,
+  "surfaces": {
+    "surface_bjyjle": {
+      "video": "ambient-2.mp4",
+      "gain": 1
+    }
+  }
+}

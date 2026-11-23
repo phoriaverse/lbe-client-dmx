@@ -1,0 +1,28 @@
+{
+  "name": "lighting-editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LBE lighting editor — build the rig (3D placement, fixture profiles, gateways and chains) and preview it on real fixtures through a running lighting-client.",
+  "scripts": {
+    "dev": "bun --watch src/server/index.ts",
+    "start": "bun src/server/index.ts",
+    "bake": "bun src/bake/cli.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mantine/core": "^7.13.4",
+    "@mantine/hooks": "^7.13.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.170.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/three": "^0.170.0",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "controlPort": 8091,
+  "outputFps": 40,
+  "outputLatencyMs": 0,
+  "master": 1,
+  "cap": 0.5,
+  "sequenced": false,
+  "rig": {
+    "host": "2.0.0.100",
+    "fixtures": 21,
+    "pixelsPerFixture": 32,
+    "order": "GRB",
+    "gamma": 2.2,
+    "universe": 0
+  }
+}

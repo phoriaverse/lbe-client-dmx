@@ -1,0 +1,11 @@
+# Sampling videos (milestone 3) — gigabytes, and the show's, not the editor's.
+media/*
+!media/README.md
+
+# Room models uploaded through the editor — often hundreds of MB. The rig records the path.
+models/*
+!models/README.md
+
+# A save in flight (written then renamed over project/rig.json).
+project/*.tmp
+project/sequences/*.tmp

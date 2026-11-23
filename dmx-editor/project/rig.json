@@ -1,0 +1,734 @@
+{
+  "format": "lbe-rig",
+  "version": 1,
+  "name": "Untitled rig",
+  "profiles": [
+    {
+      "id": "cl05",
+      "name": "CLEN CL05 tube",
+      "pixels": 32,
+      "length": 0.5,
+      "order": "GRB",
+      "gamma": 2.2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "surface_bjyjle",
+      "name": "Screen 1",
+      "parent": null,
+      "transform": {
+        "position": [
+          0,
+          1.475,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "surface": {
+        "projection": "planar",
+        "width": 5.76,
+        "height": 2.95,
+        "radius": 3,
+        "fov": 180
+      }
+    },
+    {
+      "id": "group_02fqeo",
+      "name": "Rail 1",
+      "parent": null,
+      "transform": {
+        "position": [
+          -2.88,
+          1.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          -90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "light_j0zj0a",
+      "name": "Tube 1",
+      "parent": "group_02fqeo",
+      "transform": {
+        "position": [
+          -1,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_qj9cij",
+      "name": "Tube 2",
+      "parent": "group_02fqeo",
+      "transform": {
+        "position": [
+          -0.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_hem1nf",
+      "name": "Tube 3",
+      "parent": "group_02fqeo",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_six05x",
+      "name": "Tube 4",
+      "parent": "group_02fqeo",
+      "transform": {
+        "position": [
+          0.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_v5b5qp",
+      "name": "Tube 5",
+      "parent": "group_02fqeo",
+      "transform": {
+        "position": [
+          1,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_7z1ra0",
+      "name": "Tube 17",
+      "parent": "group_pirzae",
+      "transform": {
+        "position": [
+          -1,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_ygxml2",
+      "name": "Tube 18",
+      "parent": "group_pirzae",
+      "transform": {
+        "position": [
+          -0.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_8xvbl5",
+      "name": "Tube 19",
+      "parent": "group_pirzae",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_erqjwp",
+      "name": "Tube 20",
+      "parent": "group_pirzae",
+      "transform": {
+        "position": [
+          0.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_nzwasv",
+      "name": "Tube 21",
+      "parent": "group_pirzae",
+      "transform": {
+        "position": [
+          1,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "group_sivq8u",
+      "name": "Rail 2",
+      "parent": null,
+      "transform": {
+        "position": [
+          -1.610558,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "light_xwgf3w",
+      "name": "Tube 6",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          -1,
+          -0.001224,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_1aitjd",
+      "name": "Tube 7",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          -0.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_b0lwmv",
+      "name": "Tube 8",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_xwnkce",
+      "name": "Tube 9",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          0.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_55r5mr",
+      "name": "Tube 10",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          1,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_qw7x8s",
+      "name": "Tube 11",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          1.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_h4lb0d",
+      "name": "Tube 12",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          2,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_glbql0",
+      "name": "Tube 13",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          2.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_ywoanr",
+      "name": "Tube 14",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          3,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_3wk2qu",
+      "name": "Tube 15",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          3.5,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "light_ejsoqj",
+      "name": "Tube 16",
+      "parent": "group_sivq8u",
+      "transform": {
+        "position": [
+          4,
+          0,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "cl05"
+      }
+    },
+    {
+      "id": "group_pirzae",
+      "name": "Rail 3",
+      "parent": null,
+      "transform": {
+        "position": [
+          2.88,
+          1.25,
+          0
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      }
+    }
+  ],
+  "gateways": [
+    {
+      "id": "gw1",
+      "name": "CL-104PS",
+      "host": "2.0.0.100"
+    }
+  ],
+  "chains": [
+    {
+      "id": "chain1",
+      "name": "Chain 1",
+      "gateway": "gw1",
+      "universe": 0,
+      "channel": 1,
+      "links": [
+        {
+          "light": "light_j0zj0a"
+        },
+        {
+          "light": "light_qj9cij"
+        },
+        {
+          "light": "light_hem1nf"
+        },
+        {
+          "light": "light_six05x"
+        },
+        {
+          "light": "light_v5b5qp"
+        },
+        {
+          "light": "light_xwgf3w"
+        },
+        {
+          "light": "light_1aitjd"
+        },
+        {
+          "light": "light_b0lwmv"
+        },
+        {
+          "light": "light_xwnkce"
+        },
+        {
+          "light": "light_55r5mr"
+        },
+        {
+          "light": "light_qw7x8s"
+        },
+        {
+          "light": "light_h4lb0d"
+        },
+        {
+          "light": "light_glbql0"
+        },
+        {
+          "light": "light_ywoanr"
+        },
+        {
+          "light": "light_3wk2qu"
+        },
+        {
+          "light": "light_ejsoqj"
+        },
+        {
+          "light": "light_7z1ra0"
+        },
+        {
+          "light": "light_ygxml2"
+        },
+        {
+          "light": "light_8xvbl5"
+        },
+        {
+          "light": "light_erqjwp"
+        },
+        {
+          "light": "light_nzwasv"
+        }
+      ]
+    }
+  ],
+  "room": {
+    "file": null,
+    "scale": 1,
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "visible": true,
+    "opacity": 1
+  }
+}

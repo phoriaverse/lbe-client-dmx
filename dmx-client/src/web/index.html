@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lighting Client</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #101214;
+        --panel: #181b1f;
+        --line: #2a2f36;
+        --text: #e6e8eb;
+        --dim: #8b939e;
+        --accent: #f5b942;
+        --ok: #4cc38a;
+        --bad: #f0616d;
+        --warn: #f5b942;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      }
+      main { max-width: 980px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 14px; }
+      header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+      h1 { font-size: 20px; margin: 0; font-weight: 650; }
+      h2 { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin: 0 0 10px; font-weight: 600; }
+      .sub { color: var(--dim); }
+      section { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+      .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .grow { flex: 1 1 200px; }
+      .pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); font-size: 12px; white-space: nowrap; }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+      .ok .dot { background: var(--ok); } .bad .dot { background: var(--bad); } .warn .dot { background: var(--warn); }
+      #owner { font-size: 26px; font-weight: 650; text-transform: capitalize; }
+      #ownerDetail { color: var(--dim); }
+      canvas { width: 100%; height: auto; display: block; background: #000; border-radius: 6px; image-rendering: pixelated; }
+      button {
+        font: inherit; color: var(--text); background: #22262c; border: 1px solid var(--line);
+        border-radius: 8px; padding: 7px 12px; cursor: pointer;
+      }
+      button:hover { border-color: #46505c; }
+      button.active { background: var(--accent); border-color: var(--accent); color: #1a1405; font-weight: 600; }
+      button.danger.active { background: var(--bad); border-color: var(--bad); color: #fff; }
+      button:disabled { opacity: 0.45; cursor: default; }
+      input[type="range"] { width: 100%; accent-color: var(--accent); }
+      .patterns { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
+      .asks { color: var(--dim); min-height: 2.9em; margin: 10px 0 0; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { text-align: left; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+      th { color: var(--dim); font-weight: 500; font-size: 12px; }
+      tr:last-child td { border-bottom: 0; }
+      .num { font-variant-numeric: tabular-nums; }
+      .problem { color: var(--bad); margin: 6px 0 0; }
+      .empty { color: var(--dim); }
+      label { color: var(--dim); font-size: 12px; }
+      .bar { height: 4px; background: #22262c; border-radius: 2px; overflow: hidden; margin-top: 8px; }
+      .bar > div { height: 100%; background: var(--accent); width: 0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Lighting Client</h1>
+        <span class="sub" id="name"></span>
+        <span class="pill" id="lbe"><span class="dot"></span><span></span></span>
+        <span id="gateways" class="row" style="gap: 6px"></span>
+      </header>
+
+      <section>
+        <div class="row">
+          <div class="grow">
+            <div id="owner">…</div>
+            <div id="ownerDetail"></div>
+          </div>
+          <button id="blackout" class="danger">Blackout</button>
+        </div>
+        <div class="bar" id="progressBar" hidden><div id="progress"></div></div>
+      </section>
+
+      <section>
+        <h2>On the wire now</h2>
+        <canvas id="strip" width="672" height="21"></canvas>
+        <div class="sub" id="wire" style="margin-top: 8px"></div>
+      </section>
+
+      <section>
+        <h2>Master</h2>
+        <div class="row">
+          <div class="grow"><input id="master" type="range" min="0" max="100" step="1" /></div>
+          <div class="num" id="masterValue" style="min-width: 150px; text-align: right"></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Test patterns</h2>
+        <div class="patterns" id="patterns"></div>
+        <div class="row" style="margin-top: 12px">
+          <label for="level">Pattern level</label>
+          <div class="grow"><input id="level" type="range" min="2" max="100" step="1" value="30" /></div>
+          <div class="num" id="levelValue" style="min-width: 44px; text-align: right">30%</div>
+          <button id="stopPattern">Stop</button>
+        </div>
+        <p class="asks" id="asks"></p>
+      </section>
+
+      <section>
+        <h2>Shows on this machine</h2>
+        <div id="shows"></div>
+      </section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const post = (path, body) =>
+        fetch(path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }).then(async (r) => {
+          const data = await r.json().catch(() => ({}));
+          if (!r.ok) alert(data.error ?? `Request failed (${r.status})`);
+          return data;
+        });
+
+      let status = null;
+      let draggingMaster = false;
+      let patternsBuilt = false;
+
+      const time = (ms) => {
+        const s = Math.max(0, Math.round(ms / 1000));
+        return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+      };
+
+      const OWNER_TEXT = {
+        blackout: "Blackout",
+        session: "Show",
+        pattern: "Test pattern",
+        preview: "Editor preview",
+        ambient: "Ambient loop",
+        idle: "Dark",
+      };
+
+      function render() {
+        const s = status;
+        $("name").textContent = s.name;
+
+        const lbe = $("lbe");
+        lbe.className = "pill " + (s.lbe.connected ? "ok" : s.lbe.superseded ? "bad" : "warn");
+        lbe.lastElementChild.textContent = s.lbe.connected
+          ? `Control server ${s.lbe.server}`
+          : s.lbe.superseded
+            ? "Superseded by another lighting client"
+            : "Looking for the control server…";
+
+        $("gateways").innerHTML = "";
+        for (const g of s.output.gateways) {
+          const pill = document.createElement("span");
+          pill.className = "pill " + (g.seen ? "ok" : "bad");
+          pill.innerHTML = '<span class="dot"></span>';
+          pill.append(g.seen ? `${g.name ?? "Gateway"} ${g.host}` : `Gateway ${g.host} not answering`);
+          $("gateways").append(pill);
+        }
+
+        const e = s.engine;
+        $("owner").textContent = OWNER_TEXT[e.owner] ?? e.owner;
+        let detail = "";
+        const bar = $("progressBar");
+        bar.hidden = true;
+        if (e.session) {
+          const { experience, phase, show, positionMs, durationMs } = e.session;
+          detail = `${experience} — ${phase}` + (show ? ` · ${show}` : " · no show for this experience, holding the idle look");
+          if (positionMs !== null && durationMs) {
+            detail += ` · ${time(positionMs)} / ${time(durationMs)}`;
+            bar.hidden = false;
+            $("progress").style.width = Math.min(100, (positionMs / durationMs) * 100) + "%";
+          }
+        } else if (e.owner === "pattern" && e.pattern) {
+          detail = `${e.pattern.id} at ${Math.round(e.pattern.level * 100)}%`;
+        } else if (e.owner === "preview") {
+          detail = "lighting-editor is driving the fixtures";
+        } else if (e.owner === "ambient") {
+          detail = e.ambient;
+        } else if (e.owner === "idle") {
+          detail = "Waiting for a session";
+        }
+        if (e.preview.problem) detail += ` · ${e.preview.problem}`;
+        $("ownerDetail").textContent = detail;
+
+        $("blackout").classList.toggle("active", e.blackout);
+        $("blackout").textContent = e.blackout ? "Blackout ON — click to release" : "Blackout";
+
+        if (!draggingMaster) $("master").value = Math.round(e.master * 100);
+        $("masterValue").textContent = `${Math.round(e.master * 100)}% of a ${Math.round(e.cap * 100)}% cap`;
+
+        const o = s.output;
+        $("wire").textContent =
+          `${o.description} · ${e.timing.fps.toFixed(1)} fps, ticks ${e.timing.meanLateMs.toFixed(2)} ms late on average (worst ${e.timing.maxLateMs.toFixed(1)} ms)` +
+          (o.sendFailures ? ` · ${o.sendFailures} failed sends` : "") +
+          (o.sourcePort !== 6454 ? ` · source port ${o.sourcePort} (not 6454)` : "");
+
+        if (!patternsBuilt) {
+          patternsBuilt = true;
+          for (const p of s.patterns) {
+            const b = document.createElement("button");
+            b.textContent = p.label;
+            b.dataset.id = p.id;
+            b.onclick = () => post("/api/pattern", { id: p.id, level: $("level").value / 100 }).then(refresh);
+            b.onmouseenter = () => ($("asks").textContent = p.asks);
+            $("patterns").append(b);
+          }
+        }
+        const activeId = e.pattern?.id ?? null;
+        for (const b of $("patterns").children) {
+          b.classList.toggle("active", b.dataset.id === activeId);
+          b.disabled = !!e.session;
+        }
+        const activePattern = s.patterns.find((p) => p.id === activeId);
+        if (activePattern && !$("patterns").matches(":hover")) $("asks").textContent = activePattern.asks;
+        $("stopPattern").disabled = !activeId;
+
+        const shows = $("shows");
+        if (s.shows.length === 0) {
+          shows.innerHTML = '<div class="empty">No .show files yet. Bake one in lighting-editor, or run <code>bun run make-test-show</code>.</div>';
+        } else {
+          shows.innerHTML =
+            "<table><tr><th>Experience</th><th>File</th><th>Length</th><th>Format</th><th>Baked</th></tr>" +
+            s.shows
+              .map(
+                (x) =>
+                  `<tr><td>${esc(x.experience)}</td><td>${esc(x.file)}</td><td>${time(x.durationMs)}</td>` +
+                  `<td>${x.pixelCount} px · ${x.fps} fps · ${x.bits}-bit</td><td>${new Date(x.bakedAt).toLocaleString()}</td></tr>`,
+              )
+              .join("") +
+            "</table>";
+        }
+        for (const p of s.showProblems) {
+          const div = document.createElement("div");
+          div.className = "problem";
+          div.textContent = `${p.file}: ${p.problem}`;
+          shows.append(div);
+        }
+      }
+
+      const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+      async function refresh() {
+        try {
+          status = await (await fetch("/api/status")).json();
+          render();
+        } catch {
+          $("owner").textContent = "Not running";
+          $("ownerDetail").textContent = "The lighting client is not answering.";
+        }
+      }
+
+      // The strip: what is on the wire, one row per fixture — drive levels, so a dim look is dim here.
+      async function drawStrip() {
+        try {
+          if (status && status.output.pixelCount) {
+            const levels = new Uint8Array(await (await fetch("/api/frame")).arrayBuffer());
+            const per = status.output.pixelsPerFixture;
+            const pixels = levels.length / 3;
+            const rows = Math.max(1, Math.ceil(pixels / per));
+            const canvas = $("strip");
+            // One fixture per row, scaled up so a 32-pixel tube is readable.
+            const scaleX = 16, scaleY = 10, gap = 2;
+            canvas.width = per * scaleX;
+            canvas.height = rows * (scaleY + gap) - gap;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#000";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let p = 0; p < pixels; p++) {
+              const r = levels[p * 3], g = levels[p * 3 + 1], b = levels[p * 3 + 2];
+              if (!(r | g | b)) continue;
+              // Drive levels are linear light; show them through a display curve so dim is visible.
+              const d = (v) => Math.round(Math.pow(v / 255, 1 / 2.2) * 255);
+              ctx.fillStyle = `rgb(${d(r)},${d(g)},${d(b)})`;
+              ctx.fillRect((p % per) * scaleX, Math.floor(p / per) * (scaleY + gap), scaleX - 1, scaleY);
+            }
+          }
+        } catch {}
+        setTimeout(drawStrip, 100);
+      }
+
+      $("blackout").onclick = () => post("/api/blackout", { on: !status?.engine.blackout }).then(refresh);
+      $("stopPattern").onclick = () => post("/api/pattern", { id: null }).then(refresh);
+      $("master").oninput = () => {
+        draggingMaster = true;
+        post("/api/master", { value: $("master").value / 100 });
+      };
+      $("master").onchange = () => {
+        draggingMaster = false;
+        refresh();
+      };
+      $("level").oninput = () => {
+        $("levelValue").textContent = $("level").value + "%";
+        const id = status?.engine.pattern?.id;
+        if (id) post("/api/pattern", { id, level: $("level").value / 100 });
+      };
+
+      refresh();
+      setInterval(refresh, 500);
+      drawStrip();
+    </script>
+  </body>
+</html>

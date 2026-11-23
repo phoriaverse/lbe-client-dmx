@@ -1,0 +1,293 @@
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: #0d0e11;
+  overflow: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr 380px;
+  grid-template-rows: 44px 1fr;
+  grid-template-areas: "bar bar bar" "left view right";
+  height: 100vh;
+}
+
+.bar {
+  grid-area: bar;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  border-bottom: 1px solid #262a33;
+  background: #14161b;
+}
+.rig-name input {
+  font-weight: 600;
+  width: 220px;
+}
+
+.left {
+  grid-area: left;
+  border-right: 1px solid #262a33;
+  background: #14161b;
+  min-height: 0;
+}
+.right {
+  grid-area: right;
+  border-left: 1px solid #262a33;
+  background: #14161b;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.tab-body {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.tree {
+  flex: 1;
+  min-height: 0;
+}
+.tree-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding-right: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  user-select: none;
+  border-left: 2px solid transparent;
+}
+.tree-row:hover {
+  background: #1c1f26;
+}
+.tree-row.selected {
+  background: #3a2a1a;
+  border-left-color: #ff9a3c;
+}
+.tree-row.drop,
+.tree-root-drop.drop {
+  outline: 1px dashed #ff9a3c;
+}
+.tree-icon {
+  width: 12px;
+  color: #6b7280;
+  font-size: 10px;
+}
+.tree-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tree-badge {
+  font-size: 10px;
+  color: #9ca3af;
+  font-variant-numeric: tabular-nums;
+}
+.tree-badge.unpatched {
+  color: #c05050;
+}
+.tree-badge.group {
+  color: #6b7280;
+}
+.tree-root-drop {
+  min-height: 40px;
+  font-size: 11px;
+  color: #6b7280;
+  padding: 8px;
+}
+
+.viewport-wrap {
+  grid-area: view;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.viewport {
+  position: absolute;
+  inset: 0;
+}
+.viewport canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.viewport-tools {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 8px;
+  background: rgba(20, 22, 27, 0.85);
+  border-radius: 6px;
+}
+.notice {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  background: #1f2937;
+  color: #e5e7eb;
+}
+.notice.error {
+  background: #7f1d1d;
+}
+.load-error {
+  position: absolute;
+  top: 56px;
+  left: 8px;
+  right: 8px;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+
+.axis {
+  font-size: 10px;
+  font-weight: 700;
+}
+.axis-x {
+  color: #e05252;
+}
+.axis-y {
+  color: #6fcf6f;
+}
+.axis-z {
+  color: #5b8def;
+}
+
+table.links {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+table.links th {
+  text-align: left;
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 11px;
+}
+table.links td,
+table.links th {
+  padding: 2px 4px;
+}
+table.links tr {
+  cursor: pointer;
+}
+table.links tbody tr:hover {
+  background: #1c1f26;
+}
+table.links tr.selected {
+  background: #3a2a1a;
+}
+.link-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+.link-actions > * {
+  display: inline-flex !important;
+  margin-left: 2px;
+}
+.patch-json {
+  max-height: 240px;
+  overflow: auto;
+  font-size: 10px;
+  background: #0d0e11;
+  padding: 6px;
+}
+
+.tree-row.selected:not(.active) {
+  background: #2c2218;
+}
+.marquee {
+  position: absolute;
+  border: 1px solid #7aa7ff;
+  background: rgba(122, 167, 255, 0.12);
+  pointer-events: none;
+}
+.speed-overlay {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  background: rgba(20, 22, 27, 0.9);
+  color: #e5e7eb;
+  pointer-events: none;
+}
+.viewport-help {
+  position: absolute;
+  bottom: 48px;
+  left: 8px;
+  font-size: 11px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* The playhead, along the bottom of the viewport. */
+.transport {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  background: rgba(20, 22, 27, 0.92);
+  border-top: 1px solid #23262d;
+}
+.transport-time {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: 118px;
+}
+.transport-scrub {
+  flex: 1;
+  min-width: 80px;
+}
+.transport-name {
+  white-space: nowrap;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Six tabs in the side panel: keep them on one row. */
+.tabs .mantine-Tabs-list {
+  flex-wrap: nowrap;
+}
+.tabs .mantine-Tabs-tab {
+  padding: 8px 6px;
+  font-size: 12.5px;
+}
