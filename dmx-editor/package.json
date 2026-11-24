@@ -8,6 +8,7 @@
     "dev": "bun --watch src/server/index.ts",
     "start": "bun src/server/index.ts",
     "bake": "bun src/bake/cli.ts",
+    "create:introduction": "bun src/tools/create-introduction.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
     "start:pavotube": "bun src/server/index.ts --rig project/pavotube/rig.json"

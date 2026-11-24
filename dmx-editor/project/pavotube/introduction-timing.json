@@ -1,0 +1,187 @@
+{
+  "sourceRepository": "phoriaverse/lbe-client-quest",
+  "sourceCommit": "8611d7f6b06e197cd68be406bb2f782dfdb5ff4d",
+  "sourceHashes": {
+    "Assets/Project/Introduction/Sequence/Introduction.playable": "57af9d767e82fe0c040ec4ee64408ba7ad22db13c3d0ef70633baec5704bd3d9",
+    "Assets/Project/Introduction/Sequence/Introduction.anim": "52fba03d81067ae4e2c65242960bf169036ad2a3c19e2ad6cdcfa19255b6a332",
+    "Assets/Project/Introduction/Introduction.unity": "a91223cd94b761936b675b37bd9f06b822d9d14d7ded4097db0d68804c231098",
+    "Assets/Project/Introduction/Audio/order-spatial-bed09.ogg": "969e6921a669f24b1d78d5d2426452a9369dc728985e2e0fe608414d4ae45358",
+    "Assets/Project/Introduction/Audio/order-spatial-23-09.ogg": "3bf38c948bd2f63419ca96f593c62dc788dd431769f432c51612371a267f3ed7",
+    "Assets/Project/Introduction/Audio/order-spatial-25-09.ogg": "570707c6b779f0b370adcfbaca162de0688718b11cdd20826e41758614f9daa2",
+    "Assets/Project/Introduction/Audio/wind.wav": "45e8797d7341ec4f3ddcd85ae617921d7d057494f7cf74d629f822930d22c43c",
+    "Assets/Project/Introduction/Audio/thunder.wav": "709559b02abc9e8dda3247c3fc714663922bdc0262c91aedf2b1f47784b6144f",
+    "Assets/Project/Introduction/Audio/reveal-swell06.wav": "f6b20a261c895171aaf9ec7f30fb9eecc3e8f89a62520730788b4ec2ad0e36bd",
+    "Assets/Project/Introduction/Audio/aurora-ambient09.ogg": "9c7679078dbe34cd9ff91da119fb856853fee9ad25022144bee21f4cf58e0ead",
+    "Assets/Project/Introduction/Audio/bass-return06.wav": "776b1317f2e15bdec59ea2a45c2e565b5829b29b7d193e65af06884c8cb46ceb"
+  },
+  "durationMs": 210660,
+  "fps": 40,
+  "frameCount": 8426,
+  "phases": [
+    {
+      "time": 0,
+      "name": "Rain and steam"
+    },
+    {
+      "time": 42.64,
+      "name": "Waveform"
+    },
+    {
+      "time": 150,
+      "name": "Ceiling reveal"
+    },
+    {
+      "time": 171.3,
+      "name": "Room reveal"
+    },
+    {
+      "time": 174.3,
+      "name": "Bass Mosaic"
+    }
+  ],
+  "audio": [
+    {
+      "name": "Order from Chaos",
+      "guid": "99d4ff21997774a8f9bb0d6d329a9830",
+      "start": 0,
+      "duration": 174.3,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 3,
+      "gain": 0.8,
+      "loop": false
+    },
+    {
+      "name": "Clouds",
+      "guid": "61eca99ef61574ec2ae78ce3a94b2e38",
+      "start": 0,
+      "duration": 174.3,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 3,
+      "gain": 0.8,
+      "loop": false
+    },
+    {
+      "name": "Rain objects",
+      "guid": "956a9f4e17455425dabd0737010a4f9e",
+      "start": 0,
+      "duration": 79,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 8,
+      "gain": 0.8,
+      "loop": false
+    },
+    {
+      "name": "Wind",
+      "guid": "a02dcb9edd4a8480485e71b31be9dc44",
+      "start": 12,
+      "duration": 35,
+      "clipIn": 0,
+      "fadeIn": 12,
+      "fadeOut": 4,
+      "gain": 0.2,
+      "loop": true
+    },
+    {
+      "name": "Thunder 1",
+      "guid": "1ca68aa0ee72344d5be39917125025b7",
+      "start": 39.94,
+      "duration": 4.6,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 0.4000000059604645,
+      "gain": 0.35,
+      "loop": false
+    },
+    {
+      "name": "Thunder 2",
+      "guid": "1ca68aa0ee72344d5be39917125025b7",
+      "start": 40.839999999999996,
+      "duration": 4.6,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 0.4000000059604645,
+      "gain": 0.35,
+      "loop": false
+    },
+    {
+      "name": "Thunder 3",
+      "guid": "1ca68aa0ee72344d5be39917125025b7",
+      "start": 41.739999999999995,
+      "duration": 4.6,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 0.4000000059604645,
+      "gain": 0.35,
+      "loop": false
+    },
+    {
+      "name": "Thunder 4",
+      "guid": "1ca68aa0ee72344d5be39917125025b7",
+      "start": 42.64,
+      "duration": 4.6,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 0.4000000059604645,
+      "gain": 0.35,
+      "loop": false
+    },
+    {
+      "name": "Ceiling swell",
+      "guid": "2605e7519355a4a2da9941572e6643c0",
+      "start": 150,
+      "duration": 4.995,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "gain": 0.36,
+      "loop": false
+    },
+    {
+      "name": "Aurora keys",
+      "guid": "b88fc797ef44a4e64b370e0fc214d9a2",
+      "start": 171.3,
+      "duration": 39.36,
+      "clipIn": 0,
+      "fadeIn": 3,
+      "fadeOut": 2,
+      "gain": 0.08,
+      "loop": false
+    },
+    {
+      "name": "Bass Mosaic",
+      "guid": "8838c924856424980a937ac1bad259ad",
+      "start": 174.3,
+      "duration": 36.36,
+      "clipIn": 0,
+      "fadeIn": 0,
+      "fadeOut": 0,
+      "gain": 0.52,
+      "loop": false
+    }
+  ],
+  "guide": {
+    "file": "SoundSpace_Introduction_Lighting_Guide.mp4",
+    "description": "Mono analysis mix and lighting visualisation; not a Quest render or Dolby re-render",
+    "gain": 1
+  },
+  "lighting": {
+    "color": [
+      144,
+      2,
+      255
+    ],
+    "level": 0.35,
+    "attackMs": 80,
+    "releaseMs": 250,
+    "fadeInMs": 2000,
+    "fadeOutMs": 1500
+  },
+  "rehearsal": {
+    "file": "sequences/intro-lissajous.json",
+    "sha256": "ca2b2f70d3f198e5238046e23970d30ca0e0d623182cb8c7a9c7dd402f0ec0be",
+    "durationMs": 26400
+  }
+}

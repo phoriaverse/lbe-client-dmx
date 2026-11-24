@@ -213,3 +213,7 @@ thing (the gateway pill in the header).
   the CL-104PS has not been measured.
 - **Deployment.** No LaunchAgent yet; `video-client/scripts/install-screen.sh` is the model.
 - **A permanent address on the fixture network.** The `ifconfig` alias above is lost on restart.
+
+## Sibling repository checkout
+
+For development, keep `lbe-server-web` beside `lbe-client-display`, `lbe-client-nanoleaf` and `lbe-client-dmx` under the same LBE folder. The clients import the server wire types from that sibling checkout. Install dependencies in each app and run `bun run typecheck`. Packaged/runtime clients do not need the server source on disk; these imports are type-only.

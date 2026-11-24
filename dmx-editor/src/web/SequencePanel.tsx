@@ -159,7 +159,7 @@ export function SequencePanel() {
             <div style={{ width: 24, height: 24, flexShrink: 0, borderRadius: 4, background: `rgb(${seq.unison.color.join(",")})` }} />
             <Text size="xs">{seq.unison.description}</Text>
           </Group>
-          <Text size="xs" c="dimmed" mt={6}>Source starts at {formatTime(seq.unison.sourceStartMs)}. The waiting section is retained in the original video.</Text>
+          <Text size="xs" c="dimmed" mt={6}>Source starts at {formatTime(seq.unison.sourceStartMs)}.</Text>
         </Card>
       )}
       <Group gap={6} align="end" wrap="nowrap">

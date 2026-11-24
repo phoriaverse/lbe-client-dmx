@@ -68,14 +68,65 @@ relative preview, not a photometric calibration. At low levels 8-bit DMX repeats
 black; baking at 16-bit cannot remove the final 8-bit fixture-mode limit. A future change to a
 16-bit fixture mode would require a different channel patch/universe plan.
 
-## Intro Lissajous sequence
+## Two Introduction presets
+
+This integration starts from Lucas's `main` at `4e95dac`. The existing short rehearsal is preserved,
+and the journey now has a separate full-length Introduction:
+
+| Editor sequence | Length | Baked file | Companion screen/audio |
+| --- | --- | --- | --- |
+| **Intro Lissajous · from 18s** | 26.4 s | `dmx-client/shows/intro-lissajous.show` | Original square video with Dolby-rendered 5.1 |
+| **SoundSpace Introduction · full timeline** | 210.66 s | `dmx-client/shows/introduction.show` | Square timing guide with mono reference audio |
+
+For either preset, launch the editor as below, choose its name in the sequence selector, enable
+**Sound** if desired, then **Play**. Leave **Live** off for simulation. To drive tubes, run the USB
+client, confirm its output label and enable **Live**. Playback automatically stops Identify/Walk;
+clear any client blackout or test pattern first. The editor's Sound toggle routes the selected
+companion audio through the browser; the full Introduction's guide is not a production soundtrack.
+
+### Full SoundSpace Introduction
+
+The new sequence follows the Quest Introduction at commit `8611d7f`: rain/steam from zero,
+waveform at 42.64 s, ceiling swell at 150 s, aurora at 171.3 s, Bass Mosaic at 174.3 s, then black
+at the end. All 128 pixels share purple **#9002FF**. The envelope combines the actual Timeline
+audio stems and scene gains with authored visual activation/alpha curves, smoothed with an
+80 ms attack and 250 ms release. Entry and exit fades are 2 s and 1.5 s. This is an initial
+lighting interpretation for rehearsal; optical brightness and wireless latency remain uncalibrated.
+
+To regenerate from the sibling Quest source and materialized Git LFS audio, with ffmpeg on PATH:
+
+```sh
+cd /Users/phill/Repos/LBE/lbe-client-dmx/dmx-editor
+bun run create:introduction
+```
+
+This writes the editable `project/pavotube/sequences/soundspace-introduction.json`, source hashes
+and cue timings in `project/pavotube/introduction-timing.json`, the guide video in `media/`, and
+the bake in `../dmx-client/shows/introduction.show`. It also deploys a copy to
+`../dmx-client/media/introduction.show`, which the journey selects by filename. It preserves the
+short rehearsal JSON, video and show. The generated binaries remain gitignored; regenerate or
+copy them when moving to another machine. The rig's room model remains a separate asset.
+
+The bake contains 8,426 frames at 40 fps (210.650 s, 10 ms below the source endpoint). Both ends
+are black. Time zero is the Quest Timeline's zero; the short rehearsal's 18-second source trim
+does not apply to this preset. `SoundSpace_Introduction_Lighting_Guide.mp4` is a labelled timing
+visualization with a mono stem mix, not a render of the Quest scene or a Dolby 5.1 re-render.
+
+For coordinated playback, start exactly one web or iPad server, the Quest app and the DMX client
+without `--standalone`, then enter **Introduction**. Their prepared barrier and shared `startAt`
+align the full show. The server maps optional flat-screen content to `introduction.mp4`; supply an
+actual matching full-length video separately if using a display/iPad screen. The timing guide is
+only selected in the editor and is not installed as production display content. New full-length
+hardware/Quest sync has not yet been exercised in the room.
+
+### Short Lissajous rehearsal
 
 The rig and editable sequence are tracked in Git. To use the current video and room model,
 use these assets from `Lissajous-Intro-Lucas-2026-11-24.zip` in this checkout:
 
 - `dmx-editor/media/Lisajous_Curve_2_From18s_Square_5.1.mp4`
 - `dmx-editor/models/phoria-atrium-walls-2m.glb`
-- Copy `dmx-client/shows/intro-lissajous.show` to `dmx-client/media/introduction.show` for journey playback.
+- `dmx-client/shows/intro-lissajous.show` for the short standalone rehearsal.
 
 These binary assets are intentionally excluded from Git. The ZIP also includes a matching
 source snapshot and its own launch instructions.
@@ -101,7 +152,7 @@ it is not a sequence playback control. Live must be enabled to send the sequence
 (it resets off when the page reloads). Sequence time zero is already
 source time 18s. The client must have no test pattern or blackout active. The baked lighting file
 is `dmx-client/shows/intro-lissajous.show`, experience **Intro Lissajous**, 1056 frames at 40 fps.
-The Introduction state selects the deployed copy by filename. The show contains lighting only.
+The journey's Introduction state now selects the separate full-length show. The rehearsal show contains lighting only.
 Editor preview plays the companion video and audio.
 
 To regenerate the authored intensity track after changing its weights, run
@@ -244,6 +295,13 @@ The control page preserves that entry when saving its master slider. Environment
   close that app and power-cycle the Mk2 before retrying.
 
 ## Verification and protocol sources
+
+Integration verification on 25 November 2026: 57 client tests (one opt-in hardware test skipped),
+56 editor tests and both TypeScript checks passed. The new bake matches editor evaluation, is
+uniform across all 128 pixels, and preserves the rehearsal hash. The actual preview-only client
+loaded the full show over the journey protocol, sought into Bass Mosaic, completed, blacked out
+and cancelled on a new visit. The editor displayed both presets and played the full guide against
+the room model. This integration did not open USB or run a new physical lighting test.
 
 Verified in software: 56 client tests (plus one opt-in hardware test skipped), 51 editor tests, both TypeScript checks, native serial
 enumeration, and editor Identify through the no-hardware preview client. USB tests emulate

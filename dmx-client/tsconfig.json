@@ -12,7 +12,7 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  // ../../../server/web/src/protocol.ts is deliberately in here: the LBE wire types are imported from
+  // ../../lbe-server-web/src/protocol.ts is deliberately in here: the LBE wire types are imported from
   // there (type-only, so nothing survives to runtime) rather than copied. See src/protocol.ts.
-  "include": ["src", "test", "../../../server/web/src/protocol.ts"]
+  "include": ["src", "test", "../../lbe-server-web/src/protocol.ts"]
 }
