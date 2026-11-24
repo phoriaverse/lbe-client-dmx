@@ -73,10 +73,16 @@ export class EnttecUsb implements DmxTransport {
       // Arm before requesting. A valid reply proves this path speaks the Pro protocol.
       const response = new Promise<Uint8Array>((resolve, reject) => { usb.parameters = resolve; usb.rejectParameters = reject; });
       const waiting = within(response, timeoutMs, "No ENTTEC Pro reply. Check the VCP driver and device path, close other lighting apps, and power-cycle the Mk2 if another app selected API2.");
+      // A freshly opened Mk2 can miss the first parameter query. Repeat only the read-only query,
+      // within the original deadline, before configuring the device or sending any DMX.
+      const request = enttecMessage(3, new Uint8Array([0, 0]));
+      const retry = setTimeout(() => {
+        void connection.write(request).catch((error) => usb.rejectParameters?.(error));
+      }, timeoutMs / 2);
       const [, params] = await Promise.all([
-        within(connection.write(enttecMessage(3, new Uint8Array([0, 0]))), timeoutMs, "ENTTEC parameter request timed out"),
+        within(connection.write(request), timeoutMs, "ENTTEC parameter request timed out"),
         waiting,
-      ]);
+      ]).finally(() => clearTimeout(retry));
       if (usb.error) throw new Error(usb.error);
       // Preserve the widget's break/MAB; set the requested refresh rate, no user-data change.
       await within(connection.write(enttecMessage(4, new Uint8Array([0, 0, params[2]!, params[3]!, fps]))), timeoutMs, "ENTTEC configuration timed out");

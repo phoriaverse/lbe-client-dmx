@@ -16,7 +16,7 @@ class Widget implements UsbConnection {
   readonly path = "/mock/enttec";
   writes: Uint8Array[] = [];
   closed = false;
-  reply = true;
+  missedQueries = 0;
   gate: Promise<void> | null = null;
   rejectWrites = false;
   private receive: (bytes: Uint8Array) => void = () => {};
@@ -27,7 +27,7 @@ class Widget implements UsbConnection {
   async write(bytes: Uint8Array) {
     if (this.rejectWrites) throw new Error("write failed");
     this.writes.push(bytes.slice());
-    if (bytes[1] === 3 && this.reply) {
+    if (bytes[1] === 3 && this.missedQueries-- <= 0) {
       const reply = enttecMessage(3, new Uint8Array([0, 2, 9, 1, 30]));
       this.receive(new Uint8Array([0, 255]));
       this.receive(reply.slice(0, 3));
@@ -73,11 +73,19 @@ describe("ENTTEC Pro port 1 wire protocol", () => {
     expect(widget.closed).toBe(true);
   });
 
+  test("retries a missed identification query before enabling output", async () => {
+    const widget = new Widget();
+    widget.missedQueries = 1;
+    const usb = await EnttecUsb.connect(widget, 1, 40, 100);
+    expect(widget.writes.map((w) => w[1])).toEqual([3, 3, 4, 6]);
+    await usb.close();
+  });
+
   test("does not output if identification times out", async () => {
     const widget = new Widget();
-    widget.reply = false;
+    widget.missedQueries = Infinity;
     await expect(EnttecUsb.connect(widget, 1, 40, 15)).rejects.toThrow("No ENTTEC Pro reply");
-    expect(widget.writes.map((w) => w[1])).toEqual([3]);
+    expect(widget.writes.map((w) => w[1])).toEqual([3, 3]);
     expect(widget.closed).toBe(true);
   });
 
