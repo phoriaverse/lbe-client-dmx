@@ -133,6 +133,7 @@ export function startControlServer({ config, engine, output, socket, session, li
 
       if (req.method === "GET") {
         if (url.pathname === "/") return new Response(Bun.file(PAGE), { headers: { "cache-control": "no-store" } });
+        if (url.pathname === "/icon.png") return new Response(Bun.file(path.join(import.meta.dir, "web", "icon.png")));
         if (url.pathname === "/api/status") return json(status());
         // What is on the wire right now: drive levels, R G B per pixel, frame order.
         if (url.pathname === "/api/frame") {
