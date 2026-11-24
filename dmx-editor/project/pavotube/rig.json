@@ -1,0 +1,336 @@
+{
+  "format": "lbe-rig",
+  "version": 1,
+  "name": "PavoTube II 30XR — 8 tubes / TimoLink TX",
+  "profiles": [
+    {
+      "id": "pavotube-ii-30xr-rgb8",
+      "name": "Nanlite PavoTube II 30XR · RGB 8bit · 16 pixels",
+      "pixels": 16,
+      "length": 1.145,
+      "order": "RGB",
+      "gamma": 2.2
+    }
+  ],
+  "nodes": [
+    {
+      "id": "tube-1",
+      "name": "Tube 1",
+      "parent": null,
+      "transform": {
+        "position": [
+          11.7,
+          0.5725,
+          1.3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-2",
+      "name": "Tube 2",
+      "parent": null,
+      "transform": {
+        "position": [
+          9,
+          0.5725,
+          1.3
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-3",
+      "name": "Tube 3",
+      "parent": null,
+      "transform": {
+        "position": [
+          5.9,
+          0.5725,
+          1.5
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-4",
+      "name": "Tube 4",
+      "parent": null,
+      "transform": {
+        "position": [
+          5.95,
+          0.5725,
+          4.45
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-5",
+      "name": "Tube 5",
+      "parent": null,
+      "transform": {
+        "position": [
+          6.05,
+          0.5725,
+          7.05
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-6",
+      "name": "Tube 6",
+      "parent": null,
+      "transform": {
+        "position": [
+          8.75,
+          0.5725,
+          6.9
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-7",
+      "name": "Tube 7",
+      "parent": null,
+      "transform": {
+        "position": [
+          11.4,
+          0.5725,
+          7.05
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "tube-8",
+      "name": "Tube 8",
+      "parent": null,
+      "transform": {
+        "position": [
+          11.7,
+          0.5725,
+          4.25
+        ],
+        "rotation": [
+          0,
+          0,
+          90
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "light": {
+        "profile": "pavotube-ii-30xr-rgb8"
+      }
+    },
+    {
+      "id": "intro-screen",
+      "name": "Intro screen · square",
+      "parent": null,
+      "transform": {
+        "position": [
+          8.853,
+          1.629,
+          0.84
+        ],
+        "rotation": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ]
+      },
+      "surface": {
+        "projection": "planar",
+        "width": 2.86,
+        "height": 2.86,
+        "radius": 3,
+        "fov": 180
+      }
+    }
+  ],
+  "gateways": [
+    {
+      "id": "enttec",
+      "name": "ENTTEC Mk2 / TimoLink TX",
+      "host": "enttec-usb"
+    }
+  ],
+  "chains": [
+    {
+      "id": "timolink",
+      "name": "Universe 1 — TimoLink TX",
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 1,
+      "links": [
+        {
+          "light": "tube-1",
+          "start": {
+            "universe": 1,
+            "channel": 1
+          }
+        },
+        {
+          "light": "tube-2",
+          "start": {
+            "universe": 1,
+            "channel": 49
+          }
+        },
+        {
+          "light": "tube-3",
+          "start": {
+            "universe": 1,
+            "channel": 97
+          }
+        },
+        {
+          "light": "tube-4",
+          "start": {
+            "universe": 1,
+            "channel": 145
+          }
+        },
+        {
+          "light": "tube-5",
+          "start": {
+            "universe": 1,
+            "channel": 193
+          }
+        },
+        {
+          "light": "tube-6",
+          "start": {
+            "universe": 1,
+            "channel": 241
+          }
+        },
+        {
+          "light": "tube-7",
+          "start": {
+            "universe": 1,
+            "channel": 289
+          }
+        },
+        {
+          "light": "tube-8",
+          "start": {
+            "universe": 1,
+            "channel": 337
+          }
+        }
+      ]
+    }
+  ],
+  "room": {
+    "file": "models/phoria-atrium-walls-2m.glb",
+    "scale": 1,
+    "rotation": [
+      0,
+      0,
+      0
+    ],
+    "position": [
+      -3.7985,
+      -0.231,
+      3.363
+    ],
+    "visible": true,
+    "opacity": 1
+  }
+}

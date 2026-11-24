@@ -1,8 +1,7 @@
 // lighting-client — the LBE's lighting player.
 //
-// Plays baked .show files (made by lighting-editor) to Art-Net pixel fixtures, on the same
-// clock-synced instant the headsets and screens start. It is playback only, and it is the ONLY
-// program that ever sends Art-Net: the editor previews through it rather than beside it.
+// Plays baked .show files through Art-Net or ENTTEC USB on the same clock as the headsets.
+// The editor previews through this client; it does not open its own hardware connection.
 //
 //   bun run start                              # discover the control server, drive the configured rig
 //   bun run start -- --server 192.168.1.50:8080
@@ -10,6 +9,7 @@
 //
 // Flags: --server host:port · --name "Roster name" · --port <control port> · --shows <dir>
 //        --gateway host[:port] · --source-port <udp port>
+//        --config <file> · --output artnet|enttec|preview · --usb-device <path> · --standalone
 
 import { constants, openSync } from "node:fs";
 import { ArtNetSocket } from "./artnet";
@@ -22,6 +22,8 @@ import { Output } from "./output";
 import { Session } from "./session";
 import { ARTNET_PORT } from "./shared/patch";
 import { ShowLibrary } from "./shows";
+import { EnttecUsb } from "./enttec";
+import { PreviewTransport, type DmxTransport } from "./transport";
 
 // Darwin acquires O_EXLOCK atomically at open and releases it on process exit, including crashes.
 // Keep the descriptor open and the inode in place so concurrent launches always lock the same file.
@@ -39,14 +41,18 @@ if (process.platform === "darwin") {
 
 const config = loadConfig();
 
-let socket: ArtNetSocket;
+let socket: DmxTransport;
 try {
-  socket = await ArtNetSocket.open(config.sourcePort);
+  socket = config.output === "enttec"
+    ? await EnttecUsb.open(config.usbDevice, config.usbUniverse, config.outputFps)
+    : config.output === "preview"
+      ? new PreviewTransport(config.previewUsbUniverse)
+      : await ArtNetSocket.open(config.sourcePort);
 } catch (err) {
   console.error(`[lighting] ${err instanceof Error ? err.message : err}`);
   process.exit(1);
 }
-if (socket.sourcePort !== ARTNET_PORT) {
+if (socket.kind === "artnet" && socket.sourcePort !== ARTNET_PORT) {
   console.warn(`[lighting] sending from UDP ${socket.sourcePort}, not ${ARTNET_PORT} — a real CL-104PS will ignore this. Fine for the simulator.`);
 }
 
@@ -70,10 +76,11 @@ socket.onError = (context, error) => session.reportError(context, error);
 engine.attach(session);
 
 engine.start();
-session.start();
+if (!config.standalone) session.start();
 const server = startControlServer({ config, engine, output, socket, session, library });
 
 console.log(`[lighting] "${config.name}" — ${output.description}`);
+console.log(`[lighting] output: ${socket.label}`);
 console.log(`[lighting] master ${Math.round(config.master * 100)}% · cap ${Math.round(config.cap * 100)}% · ${config.outputFps}fps · shows in ${config.showsDir}`);
 console.log(`[lighting] control page: http://localhost:${server.port}`);
 
@@ -83,8 +90,10 @@ let exiting = false;
 async function shutdown(code: number) {
   if (exiting) return;
   exiting = true;
-  if (!session.status.superseded) await engine.stop().catch(() => {});
-  socket.close();
+  try { if (!session.status.superseded) await engine.stop(); }
+  catch (err) { console.error(`[lighting] blackout failed: ${err}`); code = 1; }
+  try { await socket.close(); }
+  catch (err) { console.error(`[lighting] output close failed: ${err}`); code = 1; }
   process.exit(code);
 }
 process.on("SIGINT", () => void shutdown(0));
@@ -98,4 +107,5 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (err) => {
   session.reportError("unhandledRejection", err);
   console.error(`[lighting] unhandled rejection: ${err instanceof Error ? err.stack : err}`);
+  void shutdown(1);
 });

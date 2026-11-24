@@ -57,6 +57,7 @@ describe("engine", () => {
     if (opts.ambient) writeShow(dir, "ambient.show", AMBIENT_EXPERIENCE, patch, 4, () => 200, true);
 
     const config: Config = {
+      output: "artnet", usbUniverse: 0, standalone: false, localPath: path.join(dir, "config.local.json"),
       name: "test", server: undefined, controlPort: 0, showsDir: dir, outputFps: 200, outputLatencyMs: 0,
       master: 1, cap: 1, sequenced: false, sourcePort: 0, patch, pixelsPerFixture: 4,
     };

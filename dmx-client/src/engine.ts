@@ -120,6 +120,8 @@ export class Engine {
     } else {
       try {
         const show = this.library.load(entry);
+        const outputProblems = this.output.patchProblems(show.show.header.patch);
+        if (outputProblems.length) throw new Error(outputProblems.join("; "));
         void show.bytes[show.show.dataOffset]; // touch the first frame so it is paged in before the start
         this.active.show = show;
         const h = show.show.header;
@@ -183,6 +185,8 @@ export class Engine {
     if (!pattern) return `no pattern called "${id}"`;
     const patch = this.config.patch ?? this.output.patch;
     if (!patch) return "no patch to run a pattern on — set a rig in config.json";
+    const outputProblems = this.output.patchProblems(patch);
+    if (outputProblems.length) return outputProblems.join("; ");
     if (this.active) return "an LBE session is running — test patterns wait for it to finish";
 
     // Same pattern, new level (the page's slider): adjust in place so a chase does not restart.
@@ -213,6 +217,7 @@ export class Engine {
 
   previewHello(hello: PreviewHello): string | null {
     const problems = hello.patch ? validatePatch(hello.patch) : ["no patch"];
+    if (!problems.length) problems.push(...this.output.patchProblems(hello.patch));
     if (hello.bits !== 8 && hello.bits !== 16) problems.push(`bits ${hello.bits}`);
     if (problems.length) {
       this.preview = null;
@@ -390,7 +395,12 @@ export class Engine {
     try {
       // Keep the mapping we have if the file is unchanged — re-mapping every start would be waste.
       if (!entry) this.ambient = null;
-      else if (this.ambient?.path !== entry.path || this.ambient.mtimeMs !== entry.mtimeMs) this.ambient = this.library.load(entry);
+      else if (this.ambient?.path !== entry.path || this.ambient.mtimeMs !== entry.mtimeMs) {
+        const candidate = this.library.load(entry);
+        const problems = this.output.patchProblems(candidate.show.header.patch);
+        if (problems.length) throw new Error(problems.join("; "));
+        this.ambient = candidate;
+      }
     } catch (err) {
       this.session?.reportError("Load ambient show", err);
       console.error(`[engine] could not load the ambient show: ${err instanceof Error ? err.message : err}`);

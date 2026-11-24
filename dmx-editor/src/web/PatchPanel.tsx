@@ -37,8 +37,12 @@ export function PatchPanel() {
         <Card key={g.id} p="xs" withBorder>
           <Group gap={6} align="end" wrap="nowrap">
             <TextInput size="xs" label="Name" value={g.name ?? ""} w={110} onChange={(e) => edit("Rename gateway", (d) => updateGateway(d, g.id, { name: e.currentTarget.value }), `${g.id}.name`)} />
-            <TextInput size="xs" label="IP" value={g.host} style={{ flex: 1 }} onChange={(e) => edit("Gateway address", (d) => updateGateway(d, g.id, { host: e.currentTarget.value.trim() }), `${g.id}.host`)} />
-            <NumField label="Port" integer min={1} max={65535} w={70} value={g.port ?? 6454} onCommit={(v) => edit("Gateway port", (d) => updateGateway(d, g.id, { port: v === 6454 ? undefined : v }))} />
+            {g.host === "enttec-usb" ? (
+              <Text size="xs" style={{ flex: 1 }}>USB · DMX OUT 1 → TimoLink TX</Text>
+            ) : <>
+              <TextInput size="xs" label="IP" value={g.host} style={{ flex: 1 }} onChange={(e) => edit("Gateway address", (d) => updateGateway(d, g.id, { host: e.currentTarget.value.trim() }), `${g.id}.host`)} />
+              <NumField label="Port" integer min={1} max={65535} w={70} value={g.port ?? 6454} onCommit={(v) => edit("Gateway port", (d) => updateGateway(d, g.id, { port: v === 6454 ? undefined : v }))} />
+            </>}
             <Tooltip label={rig.chains.some((c) => c.gateway === g.id) ? "A chain uses it" : "Remove"}>
               <ActionIcon variant="subtle" color="red" disabled={rig.chains.some((c) => c.gateway === g.id)} onClick={() => edit("Remove gateway", (d) => deleteGateway(d, g.id))}>
                 ✕
@@ -46,7 +50,7 @@ export function PatchPanel() {
             </Tooltip>
           </Group>
           <Text size="xs" c="dimmed" mt={4}>
-            id <code>{g.id}</code> · port 6454 for real hardware; the simulator listens on 6455
+            {g.host === "enttec-usb" ? "Addresses must match the DMX settings on the tubes. One transmitter carries one universe." : "Art-Net: port 6454 for hardware; the simulator listens on 6455."}
           </Text>
         </Card>
       ))}

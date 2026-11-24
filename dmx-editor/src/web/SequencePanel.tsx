@@ -143,19 +143,31 @@ export function SequencePanel() {
         data={[
           { value: "projection", label: "Projection" },
           { value: "nearest", label: "Nearest surface" },
+          ...(seq.unison ? [{ value: "unison", label: "Unison" }] : []),
         ]}
       />
       <Text size="xs" c="dimmed">
-        {seq.sampling === "projection"
+        {seq.sampling === "unison"
+          ? "All tubes share one colour and intensity, following the analysed video/audio track. Position does not affect the lighting."
+          : seq.sampling === "projection"
           ? "Each surface lights the pixels its projection covers; overlapping surfaces add, and uncovered pixels stay dark."
           : "Every pixel takes the closest point of whichever surface with a video is nearest to it. Nothing is left dark."}
       </Text>
+      {seq.sampling === "unison" && seq.unison && (
+        <Card p="xs" withBorder>
+          <Group gap={8} wrap="nowrap">
+            <div style={{ width: 24, height: 24, flexShrink: 0, borderRadius: 4, background: `rgb(${seq.unison.color.join(",")})` }} />
+            <Text size="xs">{seq.unison.description}</Text>
+          </Group>
+          <Text size="xs" c="dimmed" mt={6}>Source starts at {formatTime(seq.unison.sourceStartMs)}. The waiting section is retained in the original video.</Text>
+        </Card>
+      )}
       <Group gap={6} align="end" wrap="nowrap">
         <NumField label="Level" min={0} max={1} step={0.05} w={80} value={seq.level} onCommit={(v) => editSeq("Sequence level", (d) => void (d.level = v))} />
         <NumField label="Sample size (px)" integer min={8} max={2048} step={16} w={110} value={seq.sampleSize} onCommit={(v) => editSeq("Sample size", (d) => void (d.sampleSize = v))} />
       </Group>
       <Text size="xs" c="dimmed">
-        Level is baked in, under the client's dimmers: white reaches the tubes at {Math.round(seq.level * 100)}% × {Math.round(cap * 100)}% = <b>{(seq.level * cap * 100).toFixed(1)}%</b>. The viewport shows the picture at full range regardless. Sample size is the long edge
+        Level is baked in, under the client's dimmers: peak reaches the tubes at up to {Math.round(seq.level * 100)}% × {Math.round(cap * 100)}% = <b>{(seq.level * cap * 100).toFixed(1)}%</b>. The fixture preview includes these levels. Sample size is the long edge
         videos are scaled to first; smaller is softer.
       </Text>
 

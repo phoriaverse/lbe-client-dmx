@@ -16,7 +16,7 @@
 // nudged to it. Past the end of every video, a plain timer carries the playhead to the end.
 
 import { buildPlan, evaluateFrame, type Picture, type SamplePlan } from "../model/evaluate";
-import { darkFrame, identifyFrame } from "../model/pixels";
+import { darkFrame, estimateFixtureFrame, identifyFrame } from "../model/pixels";
 import { isLight, type RigDocument, subtree } from "../model/rig";
 import { sampleDims, type SequenceDocument, sequenceDurationMs, videosInUse } from "../model/sequence";
 import { live } from "./live";
@@ -24,8 +24,6 @@ import { live } from "./live";
 const TICK_MS = 25; // 40 Hz — the client's output rate, and far inside its 1s stale timeout
 const BLINK_ON_MS = 400;
 const BLINK_PERIOD_MS = 600;
-/** On-screen exposure for identify: its 0.12 linear should read clearly, not as grey. */
-const IDENTIFY_EXPOSURE = 6;
 const RESYNC_MS = 120;
 
 interface Slot {
@@ -76,6 +74,7 @@ class Preview {
   private listeners = new Set<() => void>();
   private snap: PreviewSnapshot = { timeMs: 0, playing: false, durationMs: 0, videos: {} };
   private lastEmit = 0;
+  private displayedLevel = NaN;
 
   constructor() {
     if (typeof window !== "undefined") setInterval(() => this.tick(), TICK_MS);
@@ -146,6 +145,8 @@ class Preview {
 
   /** Nodes to identify (a group identifies every light under it), or null to stop. */
   identify(rig: RigDocument, nodeIds: readonly string[] | null) {
+    // Fixture checks and sequence playback are mutually exclusive.
+    if (nodeIds) this.pause();
     this.rig = rig;
     this.identifyTargets = nodeIds ? new Set(nodeIds.flatMap((id) => subtree(rig, id).filter(isLight).map((n) => n.id))) : null;
     this.stale = true;
@@ -333,11 +334,9 @@ class Preview {
     if (this.playing) this.advance();
 
     let frame: Float32Array | null;
-    let exposure = 1;
     let changed = false;
     if (this.identifyTargets) {
       frame = identifyFrame(rig, this.identifyTargets, performance.now() % BLINK_PERIOD_MS < BLINK_ON_MS);
-      exposure = IDENTIFY_EXPOSURE;
       changed = true;
       this.stale = true; // repaint the sequence when identify stops
     } else {
@@ -348,15 +347,19 @@ class Preview {
         if (plan.surfaces.length) {
           const pictures = new Map<string, Picture | null>();
           for (const slot of this.slots.values()) pictures.set(slot.name, this.grab(slot));
-          this.frame = evaluateFrame(plan, (v) => pictures.get(v) ?? null, this.frame?.length === plan.pixelCount * 3 ? this.frame : undefined);
+          this.frame = evaluateFrame(plan, (v) => pictures.get(v) ?? null, this.frame?.length === plan.pixelCount * 3 ? this.frame : undefined, this.timeMs);
         } else this.frame = darkFrame(plan.pixelCount);
       }
       frame = this.frame;
-      // Show the picture at full range whatever the baked level is; the level is for the wall.
-      exposure = seq.level > 0 ? 1 / seq.level : 1;
     }
 
-    if (changed) for (const fn of this.frameListeners) fn(frame, exposure);
+    const client = live.snapshot.status;
+    const level = client ? client.master * client.cap : 1;
+    if (changed || level !== this.displayedLevel) {
+      this.displayedLevel = level;
+      const appearance = frame ? estimateFixtureFrame(rig, frame, level) : null;
+      for (const fn of this.frameListeners) fn(appearance, 1);
+    }
     if ((this.identifyTargets || this.liveOutput) && frame) live.send(rig, frame);
     else live.release();
     if (this.playing) this.emit();

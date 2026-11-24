@@ -120,7 +120,7 @@ export async function bake(opts: BakeOptions): Promise<BakeResult> {
     let lastReport = 0;
     for (let f = 0; f < frameCount; f++) {
       for (const [video, decoder] of decoders) pictures.set(video, await decoder.next());
-      evaluateFrame(plan, (video) => pictures.get(video) ?? null, frame);
+      evaluateFrame(plan, (video) => pictures.get(video) ?? null, frame, f * 1000 / seq.fps);
       fs.writeSync(fd, encodeFrame(frame, seq.bits));
       const now = performance.now();
       if (opts.onProgress && (now - lastReport > 200 || f === frameCount - 1)) {

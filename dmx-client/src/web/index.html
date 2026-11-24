@@ -47,6 +47,7 @@
       button.danger.active { background: var(--bad); border-color: var(--bad); color: #fff; }
       button:disabled { opacity: 0.45; cursor: default; }
       input[type="range"] { width: 100%; accent-color: var(--accent); }
+      select { font: inherit; color: var(--text); background: #22262c; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
       .patterns { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
       .asks { color: var(--dim); min-height: 2.9em; margin: 10px 0 0; }
       table { width: 100%; border-collapse: collapse; }
@@ -82,8 +83,13 @@
       </section>
 
       <section>
-        <h2>On the wire now</h2>
+        <div class="row" style="justify-content: space-between; margin-bottom: 10px">
+          <h2 style="margin: 0">Output preview</h2>
+          <div class="row"><label for="previewMode">View</label><select id="previewMode" aria-label="Preview view"><option value="appearance">Estimated light</option><option value="drive">DMX values</option></select></div>
+        </div>
         <canvas id="strip" width="672" height="21"></canvas>
+        <div class="sub" id="previewNote" style="margin-top: 8px"></div>
+        <div class="sub num" id="pixelValue" style="margin-top: 4px">Point at a pixel to inspect its DMX values.</div>
         <div class="sub" id="wire" style="margin-top: 8px"></div>
       </section>
 
@@ -125,6 +131,9 @@
       let status = null;
       let draggingMaster = false;
       let patternsBuilt = false;
+      let draggingLevel = false;
+      let driveLevels = new Uint8Array(0);
+      let inspectedPixel = null;
 
       const time = (ms) => {
         const s = Math.max(0, Math.round(ms / 1000));
@@ -146,13 +155,19 @@
 
         const lbe = $("lbe");
         lbe.className = "pill " + (s.lbe.connected ? "ok" : s.lbe.superseded ? "bad" : "warn");
-        lbe.lastElementChild.textContent = s.lbe.connected
+        lbe.lastElementChild.textContent = s.lbe.enabled === false ? "Standalone — local control only" : s.lbe.connected
           ? `Control server ${s.lbe.server}`
           : s.lbe.superseded
             ? "Superseded by another lighting client"
             : "Looking for the control server…";
 
         $("gateways").innerHTML = "";
+        if (s.output.kind !== "artnet") {
+          const pill = document.createElement("span");
+          pill.className = "pill " + (s.output.error ? "bad" : s.output.connected ? "ok" : "warn");
+          pill.textContent = s.output.error ?? s.output.label;
+          $("gateways").append(pill);
+        }
         for (const g of s.output.gateways) {
           const pill = document.createElement("span");
           pill.className = "pill " + (g.seen ? "ok" : "bad");
@@ -175,7 +190,8 @@
             $("progress").style.width = Math.min(100, (positionMs / durationMs) * 100) + "%";
           }
         } else if (e.owner === "pattern" && e.pattern) {
-          detail = `${e.pattern.id} at ${Math.round(e.pattern.level * 100)}%`;
+          const label = s.patterns.find((p) => p.id === e.pattern.id)?.label ?? e.pattern.id;
+          detail = `${label} at ${Math.round(e.pattern.level * 100)}%`;
         } else if (e.owner === "preview") {
           detail = "lighting-editor is driving the fixtures";
         } else if (e.owner === "ambient") {
@@ -196,7 +212,11 @@
         $("wire").textContent =
           `${o.description} · ${e.timing.fps.toFixed(1)} fps, ticks ${e.timing.meanLateMs.toFixed(2)} ms late on average (worst ${e.timing.maxLateMs.toFixed(1)} ms)` +
           (o.sendFailures ? ` · ${o.sendFailures} failed sends` : "") +
-          (o.sourcePort !== 6454 ? ` · source port ${o.sourcePort} (not 6454)` : "");
+          (o.kind === "artnet" && o.sourcePort !== 6454 ? ` · source port ${o.sourcePort} (not 6454)` : "");
+        const linearFixtures = o.fixtureGammas?.length === 1 && o.fixtureGammas[0] === 2.2;
+        $("previewNote").textContent = $("previewMode").value === "appearance"
+          ? `Relative light estimate after master/cap and 8-bit DMX. ${linearFixtures ? "Profile expects Linear DMX on the tubes." : "Uses the fixture response in the active patch."} Screen brightness and room glare will differ. First pixel → last pixel, one tube per row.`
+          : "Raw DMX codes shown as RGB swatches, not a brightness prediction. First pixel → last pixel, one tube per row.";
 
         if (!patternsBuilt) {
           patternsBuilt = true;
@@ -210,6 +230,10 @@
           }
         }
         const activeId = e.pattern?.id ?? null;
+        if (e.pattern && !draggingLevel) {
+          $("level").value = Math.round(e.pattern.level * 100);
+          $("levelValue").textContent = $("level").value + "%";
+        }
         for (const b of $("patterns").children) {
           b.classList.toggle("active", b.dataset.id === activeId);
           b.disabled = !!e.session;
@@ -253,11 +277,19 @@
         }
       }
 
-      // The strip: what is on the wire, one row per fixture — drive levels, so a dim look is dim here.
+      // The client uses the active fixture curve to predict light from the actual quantised DMX.
+      // Appearance bytes are already sRGB: applying another display curve here would double it.
       async function drawStrip() {
         try {
           if (status && status.output.pixelCount) {
-            const levels = new Uint8Array(await (await fetch("/api/frame")).arrayBuffer());
+            const mode = $("previewMode").value;
+            const [drive, appearance] = await Promise.all([
+              fetch("/api/frame").then((r) => r.arrayBuffer()),
+              mode === "appearance" ? fetch("/api/appearance").then((r) => { if (!r.ok) throw new Error("Appearance unavailable"); return r.arrayBuffer(); }) : null,
+            ]);
+            driveLevels = new Uint8Array(drive);
+            inspectPixel();
+            const levels = appearance ? new Uint8Array(appearance) : driveLevels;
             const per = status.output.pixelsPerFixture;
             const pixels = levels.length / 3;
             const rows = Math.max(1, Math.ceil(pixels / per));
@@ -272,9 +304,7 @@
             for (let p = 0; p < pixels; p++) {
               const r = levels[p * 3], g = levels[p * 3 + 1], b = levels[p * 3 + 2];
               if (!(r | g | b)) continue;
-              // Drive levels are linear light; show them through a display curve so dim is visible.
-              const d = (v) => Math.round(Math.pow(v / 255, 1 / 2.2) * 255);
-              ctx.fillStyle = `rgb(${d(r)},${d(g)},${d(b)})`;
+              ctx.fillStyle = `rgb(${r},${g},${b})`;
               ctx.fillRect((p % per) * scaleX, Math.floor(p / per) * (scaleY + gap), scaleX - 1, scaleY);
             }
           }
@@ -293,9 +323,30 @@
         refresh();
       };
       $("level").oninput = () => {
+        draggingLevel = true;
         $("levelValue").textContent = $("level").value + "%";
         const id = status?.engine.pattern?.id;
         if (id) post("/api/pattern", { id, level: $("level").value / 100 });
+      };
+      $("level").onchange = () => { draggingLevel = false; refresh(); };
+      $("previewMode").onchange = () => render();
+      function inspectPixel() {
+        const per = status?.output.pixelsPerFixture;
+        if (inspectedPixel === null || !per || inspectedPixel * 3 + 2 >= driveLevels.length) return;
+        const offset = inspectedPixel * 3;
+        $("pixelValue").textContent = `Tube ${Math.floor(inspectedPixel / per) + 1} · pixel ${inspectedPixel % per + 1} · DMX R ${driveLevels[offset]} / G ${driveLevels[offset + 1]} / B ${driveLevels[offset + 2]}`;
+      }
+      $("strip").onmousemove = (event) => {
+        const canvas = $("strip"), rect = canvas.getBoundingClientRect();
+        const x = (event.clientX - rect.left) / rect.width * canvas.width;
+        const y = (event.clientY - rect.top) / rect.height * canvas.height;
+        const per = status?.output.pixelsPerFixture;
+        if (!per) return;
+        const row = Math.floor(y / 12), pixel = Math.floor(x / 16);
+        const offset = (row * per + pixel) * 3;
+        if (pixel >= per || offset + 2 >= driveLevels.length) return;
+        inspectedPixel = row * per + pixel;
+        inspectPixel();
       };
 
       refresh();

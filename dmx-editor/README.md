@@ -9,8 +9,12 @@ model of the room, wire them into chains, and press Identify to check each tube 
 plays a video on them, the lights sample it, and a bake writes the `.show` that `lighting-client`
 plays in a session.
 
-It never sends Art-Net. Live output goes through a running **`dmx-client/`** (its `/preview`
+Live output goes through a running **`dmx-client/`** (its `/preview`
 WebSocket), which is the only program that drives the fixtures. A live LBE session there always wins.
+
+For the eight **PavoTube II 30XR** tubes with ENTTEC USB and TimoLink TX, use
+`bun run start:pavotube` and follow [PAVOTUBE_SETUP.md](../PAVOTUBE_SETUP.md).
+The normal `start` command below loads the original CL05 rig. Network Scan applies only to Art-Net.
 
 ## Run it
 
@@ -39,6 +43,12 @@ preview through the client on the show Mac.
 
 ## Using it
 
+The editor frames the loaded rig automatically. **Frame all** returns to the overview;
+**Frame selected** or **F** focuses the selection (F frames everything if nothing is selected).
+Double-click a tube in the left hierarchy to jump to it. **Q** hides the transform handles and
+lets you pan. Thin fixture guides keep unlit tubes visible across a large room and show sampled
+pixel colours during preview. These guides affect only the viewport, not the output or patch.
+
 1. **Room** tab → **Import…** a GLB. If the readout ("6.00 × 3.00 × 8.00 m") isn't the room's real
    size, fix the scale (m / cm / mm / in / ft) and the rotation (**Z-up → Y-up** for most CAD exports).
 2. **Place lights in wire order**: the first tube off the gateway goes first. **+ Tube** places a
@@ -53,6 +63,11 @@ preview through the client on the show Mac.
 5. **⌘S** saves. There is no autosave yet (milestone 6). The page warns you if you close it with
    unsaved changes.
 
+If the header says **CLIENT: BLACKOUT**, the physical lights are held dark even during Identify
+or Live preview. Release blackout on the [client controls](http://localhost:8091) when ready to
+drive the real tubes. A rig with no video surfaces/media has nothing to play yet: use Identify to
+inspect fixtures, or follow the video workflow below to create lighting content.
+
 ## Video surfaces, sequences and the bake
 
 1. **+ Surface** (above the hierarchy) adds a video surface. It is a rig node like a light: move it
@@ -62,6 +77,11 @@ preview through the client on the show Mac.
 3. **Play** (or **Space**) and scrub along the bottom of the viewport. The tubes in the viewport
    show what they would do. Switch **Live** on to send the same frames to the real tubes through
    the lighting-client. Live is off after every page load.
+   Fixture colours now include sequence level, the connected client's master/cap, profile gains
+   and 8-bit DMX quantisation. The **Preview ×…%** label shows master × cap (100% when offline).
+   Identify is no longer boosted and sequence level is no longer normalised away. The scene
+   remains an estimated colour preview, with visible unlit guides; it does not simulate room
+   bounce/glare or mirror test patterns selected on the client's page.
 4. Set **Experience** to the name the console starts (`Second Nature`), then **Bake .show**. It
    saves first, bakes what is on disk, and a running lighting-client picks the file up by itself.
    `bun run bake -- <sequence-id>` does the same from a terminal. The bake needs ffmpeg
@@ -146,7 +166,8 @@ chains and the room fix-ups. Save → load is lossless, and load → save is byt
 with reasons, and the editor won't save over it.
 
 A light's pixels lie along its local **+X**, centred, with pixel 0 at −X. The profile sets their count
-and length. Today's profile is the CL05: 32 px, 0.5 m, GRB, gamma 2.2.
+and length. The default profile is CL05: 32 px, 0.5 m, GRB, gamma 2.2. The separate PavoTube preset
+uses 16 RGB pixels over 1.145 m, gamma 1 pending calibration, with pixel 0 at the bottom.
 
 ## Code
 
@@ -174,6 +195,15 @@ test/            bun test — includes the milestone 2 acceptance check
 
 `dmx-client/src/shared/` is the contract: the patch model, the `.show` format and the preview
 protocol. They're imported, never copied.
+
+## Unison lighting tracks
+
+Sequences may also carry an optional `unison` lighting track: fixed sRGB colour, evenly sampled
+linear intensities, sample rate and source provenance. In **Unison** mode, every fixture pixel
+uses that track at the absolute sequence time; preview scrubbing and baking share the evaluator.
+Video/audio analysis is an authoring step, not a dependency on microphone access or live audio
+analysis during playback. The PavoTube project includes the first `intro-lissajous` example,
+trimmed to source 18s. Its source media remains local and is not included in Git.
 
 ## Tests
 

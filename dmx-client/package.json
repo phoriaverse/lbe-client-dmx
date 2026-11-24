@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "LBE lighting client — plays baked .show files to Art-Net pixel fixtures, clock-synced to the control server.",
+  "description": "LBE lighting client — plays baked .show files through Art-Net or ENTTEC USB, clock-synced to the control server.",
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
@@ -12,10 +12,16 @@
     "probe": "bun src/tools/probe.ts",
     "make-test-show": "bun src/tools/make-test-show.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "usb:list": "bun src/tools/list-usb.ts",
+    "start:pavotube": "bun src/index.ts --config config.pavotube.json",
+    "preview:pavotube": "bun src/index.ts --config config.pavotube.json --output preview --standalone"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "serialport": "13.0.0"
   }
 }

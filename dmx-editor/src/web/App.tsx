@@ -7,6 +7,7 @@ import { Hierarchy } from "./Hierarchy";
 import { Inspector } from "./Inspector";
 import { live, WALK_STEP_MS, walkOrder } from "./live";
 import { preview } from "./preview";
+import { togglePlayback } from "./playback";
 import { SequencePanel } from "./SequencePanel";
 import { Transport } from "./Transport";
 import { LivePanel, ProfilesPanel, RoomPanel, useLive } from "./OtherPanels";
@@ -95,6 +96,7 @@ export function App() {
   useEffect(() => {
     if (!ui.walk) return;
     const step = () => {
+      if (!getUi().walk) return;
       const order = walkOrder(rigStore.get());
       if (!order.length) return setUi({ walk: false });
       const i = order.indexOf(activeOf(getUi().selection) ?? "");
@@ -194,7 +196,7 @@ export function App() {
         case "Space":
           if (el.closest("button, [role=switch], [role=slider]")) break; // Space already presses the focused control
           e.preventDefault();
-          preview.toggle();
+          togglePlayback();
           break;
         case "KeyI":
           setUi({ identify: !getUi().identify, walk: false });
@@ -238,7 +240,7 @@ export function App() {
           </Badge>
         </Tooltip>
         <Button size="compact-sm" variant={ui.identify ? "filled" : "default"} color={ui.identify ? "orange" : undefined} onClick={() => setUi({ identify: !ui.identify, walk: false })}>
-          Identify
+          {ui.identify ? "Stop identify" : "Identify"}
         </Button>
         <Button size="compact-sm" variant="default" onClick={revert}>
           Reload
@@ -255,6 +257,14 @@ export function App() {
       <main className="viewport-wrap">
         <div ref={viewportRef} className="viewport" />
         <div className="viewport-tools">
+          <Group gap={4} wrap="nowrap">
+            <Button size="compact-xs" variant="default" onClick={() => sceneRef.current?.frameSelection([])}>
+              Frame all
+            </Button>
+            <Button size="compact-xs" variant="default" disabled={!ui.selection.length} onClick={() => sceneRef.current?.frameSelection()}>
+              Frame selected
+            </Button>
+          </Group>
           <SegmentedControl
             size="xs"
             value={ui.tool}

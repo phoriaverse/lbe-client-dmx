@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "LBE lighting editor — build the rig (3D placement, fixture profiles, gateways and chains) and preview it on real fixtures through a running lighting-client.",
+  "description": "LBE lighting editor \u2014 build the rig (3D placement, fixture profiles, gateways and chains) and preview it on real fixtures through a running lighting-client.",
   "scripts": {
     "dev": "bun --watch src/server/index.ts",
     "start": "bun src/server/index.ts",
     "bake": "bun src/bake/cli.ts",
     "test": "bun test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "start:pavotube": "bun src/server/index.ts --rig project/pavotube/rig.json"
   },
   "dependencies": {
     "@mantine/core": "^7.13.4",

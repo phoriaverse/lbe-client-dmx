@@ -13,18 +13,17 @@
 // ON THE FIXTURE CURVE. A patch run's `gamma` is the exponent from a *perceptual* level to that
 // fixture's drive level. The CL05 tubes are linear PWM (bench: 0→31 is a bigger visible change than
 // 31→255), so their gamma is 2.2 and the drive level comes out equal to linear light — which is
-// correct, a linear device wants linear light. A fixture with its own dimming curve would say 1.0
-// and receive the perceptual level instead. Formally: drive = linear ^ (gamma / 2.2).
+// correct, a linear device wants linear light. Gamma 1.0 assumes the fixture itself applies an
+// approximately 2.2 power response; it is not a match for arbitrary S/log dimming curves.
+// Formally: drive = linear ^ (gamma / 2.2).
 //
 // MASTER AND CAP are applied in linear light, so 0.5 means half the light (and about half the
 // power), not "half way down a fader". They multiply: cap is what 100% means on this site, master
 // moves underneath it. Neither needs a re-bake.
 
-import { type ArtNetSocket, type DmxPacket, createDmxPacket, setSequence } from "./artnet";
+import type { DmxTransport } from "./transport";
 import { ARTNET_PORT, type CompiledPatch, type Patch, compilePatch, describePatch, samePatch } from "./shared/patch";
-
-/** The perceptual reference exponent the fixture `gamma` is defined against. */
-const PERCEPTUAL_GAMMA = 2.2;
+import { driveToLinear, linearToDrive, linearToSrgb, PERCEPTUAL_GAMMA } from "./shared/brightness";
 
 /** How many zero frames a universe gets when it leaves the patch, or at shutdown. */
 const BLACKOUT_REPEATS = 10;
@@ -42,6 +41,7 @@ interface RunTables {
   r: Uint8Array;
   g: Uint8Array;
   b: Uint8Array;
+  display: Uint8Array;
   /** Byte position of each colour within the pixel's channels; w is -1 for a 3-channel fixture. */
   posR: number;
   posG: number;
@@ -53,7 +53,7 @@ interface Retiring {
   host: string;
   port: number;
   universe: number;
-  packet: DmxPacket;
+  data: Uint8Array;
   remaining: number;
 }
 
@@ -63,17 +63,16 @@ export function buildDriveTable(opts: { bits: 8 | 16; transfer: number; gamma: n
   const max = size - 1;
   const table = new Uint8Array(size);
   const scale = Math.max(0, opts.gain) * Math.max(0, opts.level);
-  const curve = opts.gamma / PERCEPTUAL_GAMMA;
   for (let v = 1; v < size; v++) {
     const linear = Math.min(1, Math.pow(v / max, opts.transfer) * scale);
-    table[v] = Math.round(Math.pow(linear, curve) * 255);
+    table[v] = linearToDrive(linear, opts.gamma);
   }
   return table; // table[0] stays 0: black is always exactly black
 }
 
 export class Output {
   private compiled: CompiledPatch | null = null;
-  private packets: DmxPacket[] = [];
+  private packets: Uint8Array[] = [];
   private sequences: number[] = [];
   private tables: RunTables[] = [];
   private tablesKey = "";
@@ -81,11 +80,13 @@ export class Output {
   private levels: OutputLevels = { master: 1, cap: 1 };
   /** The last frame as drive levels, R G B per pixel in frame order — for the control page. */
   private monitor = new Uint8Array(0);
+  /** Estimated fixture light, encoded as sRGB, after levels and DMX quantisation. */
+  private displayMonitor = new Uint8Array(0);
 
   framesRendered = 0;
 
   constructor(
-    private readonly socket: ArtNetSocket,
+    private readonly socket: DmxTransport,
     /** Number ArtDmx packets 1–255. Off by default: the bench tools did not, and the CL-104PS is fussy. */
     private readonly sequenced = false,
   ) {}
@@ -110,6 +111,8 @@ export class Output {
    */
   setPatch(patch: Patch | null) {
     if (samePatch(patch, this.patch)) return;
+    const problems = patch ? this.socket.validatePatch(patch) : [];
+    if (problems.length) throw new Error(problems.join("; "));
     const next = patch ? compilePatch(patch) : null;
 
     const stillDriven = new Set((next?.slots ?? []).map((s) => wireKey(s.gateway.host, s.gateway.port, s.universe)));
@@ -119,21 +122,22 @@ export class Output {
     this.compiled?.slots.forEach((slot, i) => {
       const key = wireKey(slot.gateway.host, slot.gateway.port, slot.universe);
       if (stillDriven.has(key)) return;
-      const packet = this.packets[i]!;
-      packet.data.fill(0);
+      const data = this.packets[i]!;
+      data.fill(0);
       this.retiring.push({
         host: slot.gateway.host,
         port: slot.gateway.port ?? ARTNET_PORT,
         universe: slot.universe,
-        packet,
+        data,
         remaining: BLACKOUT_REPEATS,
       });
     });
 
     this.compiled = next;
-    this.packets = (next?.slots ?? []).map((s) => createDmxPacket(s.universe));
+    this.packets = (next?.slots ?? []).map(() => new Uint8Array(512));
     this.sequences = this.packets.map(() => 0);
     this.monitor = new Uint8Array((next?.patch.pixelCount ?? 0) * 3);
+    this.displayMonitor = new Uint8Array(this.monitor.length);
     this.tablesKey = "";
   }
 
@@ -152,12 +156,20 @@ export class Output {
       return t;
     };
 
+    const displayCache = new Map<number, Uint8Array>();
     this.tables = this.compiled.patch.runs.map((run) => {
       const [gr, gg, gb] = run.gain ?? [1, 1, 1];
+      let display = displayCache.get(run.gamma);
+      if (!display) {
+        display = Uint8Array.from({ length: 256 }, (_, drive) =>
+          Math.round(linearToSrgb(driveToLinear(drive / 255, run.gamma)) * 255));
+        displayCache.set(run.gamma, display);
+      }
       return {
         r: table(run.gamma, gr),
         g: table(run.gamma, gg),
         b: table(run.gamma, gb),
+        display,
         posR: run.order.indexOf("R"),
         posG: run.order.indexOf("G"),
         posB: run.order.indexOf("B"),
@@ -177,8 +189,9 @@ export class Output {
   render(frame: Frame | null, transfer = PERCEPTUAL_GAMMA) {
     const compiled = this.compiled;
     if (compiled) {
-      for (const packet of this.packets) packet.data.fill(0);
+      for (const packet of this.packets) packet.fill(0);
       this.monitor.fill(0);
+      this.displayMonitor.fill(0);
 
       if (frame) {
         const bits = frame instanceof Uint16Array ? 16 : 8;
@@ -199,8 +212,11 @@ export class Output {
           monitor[i] = r;
           monitor[i + 1] = g;
           monitor[i + 2] = b;
+          this.displayMonitor[i] = t.display[r]!;
+          this.displayMonitor[i + 1] = t.display[g]!;
+          this.displayMonitor[i + 2] = t.display[b]!;
 
-          const data = this.packets[s]!.data;
+          const data = this.packets[s]!;
           const o = offsetOf[p]!;
           if (t.posW >= 0) {
             // RGBW: move the shared white component onto the white emitter.
@@ -221,15 +237,14 @@ export class Output {
         if (this.sequenced) {
           const next = (this.sequences[i]! % 255) + 1;
           this.sequences[i] = next;
-          setSequence(packet, next);
         }
-        this.socket.sendDmx(slot.gateway.host, slot.gateway.port ?? ARTNET_PORT, packet);
+        this.socket.sendUniverse(slot.gateway.host, slot.gateway.port ?? ARTNET_PORT, slot.universe, packet, this.sequences[i]);
       });
     }
 
     if (this.retiring.length) {
       for (const r of this.retiring) {
-        this.socket.sendDmx(r.host, r.port, r.packet);
+        this.socket.sendUniverse(r.host, r.port, r.universe, r.data);
         r.remaining -= 1;
       }
       this.retiring = this.retiring.filter((r) => r.remaining > 0);
@@ -241,6 +256,15 @@ export class Output {
   /** The last frame's drive levels (R G B per pixel, frame order). A live view, not a copy. */
   get lastDriveLevels(): Uint8Array {
     return this.monitor;
+  }
+
+  /** Screen RGB from the configured fixture response; an estimate, not a photometric reading. */
+  get lastDisplayLevels(): Uint8Array {
+    return this.displayMonitor;
+  }
+
+  patchProblems(patch: Patch): string[] {
+    return this.socket.validatePatch(patch);
   }
 
   /**

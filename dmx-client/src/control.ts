@@ -11,7 +11,7 @@
 
 import path from "node:path";
 import type { ServerWebSocket } from "bun";
-import type { ArtNetSocket } from "./artnet";
+import type { DmxTransport } from "./transport";
 import { type Config, saveLocal } from "./config";
 import type { Engine } from "./engine";
 import type { Output } from "./output";
@@ -28,7 +28,7 @@ interface Deps {
   config: Config;
   engine: Engine;
   output: Output;
-  socket: ArtNetSocket;
+  socket: DmxTransport;
   session: Session;
   library: ShowLibrary;
 }
@@ -49,6 +49,7 @@ export function startControlServer({ config, engine, output, socket, session, li
       problem: s.preview.problem,
       master: s.master,
       cap: s.cap,
+      output: { kind: socket.kind, label: socket.label, connected: socket.connected, error: socket.error },
     };
   };
 
@@ -64,8 +65,12 @@ export function startControlServer({ config, engine, output, socket, session, li
     return {
       name: config.name,
       engine: engine.status,
-      lbe: session.status,
+      lbe: { ...session.status, enabled: !config.standalone },
       output: {
+        kind: socket.kind,
+        label: socket.label,
+        connected: socket.connected,
+        error: socket.error,
         description: output.description,
         fps: config.outputFps,
         latencyMs: config.outputLatencyMs,
@@ -74,7 +79,8 @@ export function startControlServer({ config, engine, output, socket, session, li
         sendFailures: socket.failures,
         pixelCount: patch?.pixelCount ?? 0,
         pixelsPerFixture: config.pixelsPerFixture,
-        gateways: (patch?.gateways ?? []).map((g) => {
+        fixtureGammas: [...new Set(patch?.runs.map((run) => run.gamma) ?? [])],
+        gateways: (socket.kind === "artnet" ? patch?.gateways ?? [] : []).map((g) => {
           const node = nodes.find((n) => n.from === g.host);
           return {
             id: g.id,
@@ -106,8 +112,12 @@ export function startControlServer({ config, engine, output, socket, session, li
 
   // Keep "is the gateway there?" current without anyone having to press Scan.
   const pollGateways = () => void socket.poll(gatewayTargets(), 400).catch(() => {});
-  pollGateways();
-  setInterval(pollGateways, 5000);
+  if (socket.kind === "artnet") {
+    pollGateways();
+    setInterval(pollGateways, 5000);
+  }
+  // USB disconnects are independent of engine ownership changes; keep the editor informed.
+  setInterval(() => { for (const ws of previewSockets) reply(ws, previewStatus()); }, 1000);
 
   const server = Bun.serve({
     port: config.controlPort,
@@ -127,6 +137,9 @@ export function startControlServer({ config, engine, output, socket, session, li
         if (url.pathname === "/api/frame") {
           return new Response(output.lastDriveLevels.slice(), { headers: { "content-type": "application/octet-stream", "cache-control": "no-store" } });
         }
+        if (url.pathname === "/api/appearance") {
+          return new Response(output.lastDisplayLevels.slice(), { headers: { "content-type": "application/octet-stream", "cache-control": "no-store" } });
+        }
       }
 
       if (req.method === "POST") {
@@ -136,7 +149,7 @@ export function startControlServer({ config, engine, output, socket, session, li
             const value = Number(body.value);
             if (!Number.isFinite(value)) return json({ error: "value must be a number 0–1" }, 400);
             engine.setMaster(value);
-            saveLocal({ master: engine.status.master });
+            saveLocal({ master: engine.status.master }, config.localPath);
             return json({ master: engine.status.master });
           }
           case "/api/blackout":

@@ -4,6 +4,7 @@ shows/*
 
 # On-site overrides written by the control page (master dimmer etc). config.json is the tracked default.
 config.local.json
+config.*.local.json
 
 # What `bun run probe` measured on this rig.
 probe-markers.json

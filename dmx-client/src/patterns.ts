@@ -8,6 +8,9 @@
 // (0–1): 0.3 is dim, and is the default on purpose — the full-brightness power test of a long chain
 // is still an open item, and a test pattern should not be the thing that runs it by accident.
 
+import { lightnessToLinear } from "./shared/brightness";
+import { encodeSample, SHOW_TRANSFER } from "./shared/show-file";
+
 export interface PatternContext {
   pixelCount: number;
   /** Pixels per fixture, for the patterns that think in tubes. */
@@ -125,12 +128,26 @@ export const PATTERNS: readonly Pattern[] = [
   },
   {
     id: "ramp",
-    label: "Ramp",
-    asks: "Each tube ramps dark to bright. Does it look like an even ramp? Bunched at the bright end means gamma is too low.",
+    label: "Linear-light ramp",
+    asks: "Equal light-output steps from the first pixel to the last. This usually looks front-loaded to our eyes. Compare Perceptual ramp at the same level; both have the same brightest pixel.",
     render(out, _t, ctx) {
+      const peak = Math.pow(ctx.level, SHOW_TRANSFER);
       for (let p = 0; p < ctx.pixelCount; p++) {
         const f = (p % ctx.pixelsPerFixture) / Math.max(1, ctx.pixelsPerFixture - 1);
-        const v = Math.round(f * ctx.level * 255);
+        const v = encodeSample(f * peak, 8);
+        set(out, p, v, v, v);
+      }
+    },
+  },
+  {
+    id: "perceptual-ramp",
+    label: "Perceptual ramp",
+    asks: "Approximately equal perceived-brightness steps, dark to bright (CIE L*). The fixture profile must match the tube's DMX dimming curve. Very low levels may step in 8-bit DMX.",
+    render(out, _t, ctx) {
+      const peak = Math.pow(ctx.level, SHOW_TRANSFER);
+      for (let p = 0; p < ctx.pixelCount; p++) {
+        const f = (p % ctx.pixelsPerFixture) / Math.max(1, ctx.pixelsPerFixture - 1);
+        const v = encodeSample(lightnessToLinear(f) * peak, 8);
         set(out, p, v, v, v);
       }
     },
