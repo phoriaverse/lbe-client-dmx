@@ -96,6 +96,7 @@ export function startControlServer({ config, engine, output, socket, session, li
       },
       shows: library.shows.map((s) => ({
         file: s.file,
+        state: s.state,
         experience: s.show.header.experience,
         name: s.show.header.name,
         durationMs: durationMsOf(s.show.header),

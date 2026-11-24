@@ -1,6 +1,6 @@
 # dmx-editor
 
-The DMX client resolves a baked show by its network state name. Use the exact track title or a journey state such as Seating when authoring a cue. The client logs an unassigned state and votes ready. [Playback and journey behavior](../dmx-client/README.md)
+Deploy a bake by copying it to the DMX client’s media directory under the journey state name, for example `seating.show`. [Playback and journey behavior](../dmx-client/README.md)
 
 
 The LBE's lighting authoring tool. **Milestone 2: the rig editor.** You place the fixtures in a 3D
@@ -82,8 +82,8 @@ inspect fixtures, or follow the video workflow below to create lighting content.
    Identify is no longer boosted and sequence level is no longer normalised away. The scene
    remains an estimated colour preview, with visible unlit guides; it does not simulate room
    bounce/glare or mirror test patterns selected on the client's page.
-4. Set **Experience** to the name the console starts (`Second Nature`), then **Bake .show**. It
-   saves first, bakes what is on disk, and a running lighting-client picks the file up by itself.
+4. Set **Experience** and choose **Bake .show**. For the Second Nature state, copy the result
+   to `dmx-client/media/second nature.show`. The client picks it up on the next visit.
    `bun run bake -- <sequence-id>` does the same from a terminal. The bake needs ffmpeg
    (`brew install ffmpeg`).
 

@@ -18,7 +18,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { loadConfig } from "../config";
-import { AMBIENT_EXPERIENCE, SHOW_EXTENSION, SHOW_TRANSFER, SHOW_VERSION, type SampleBits, type ShowHeader, encodeSample, encodeShowHeader, slugOf } from "../shared/show-file";
+import { AMBIENT_EXPERIENCE, SHOW_EXTENSION, SHOW_TRANSFER, SHOW_VERSION, type SampleBits, type ShowHeader, encodeSample, encodeShowHeader } from "../shared/show-file";
 
 const arg = (name: string) => {
   const i = process.argv.indexOf(`--${name}`);
@@ -33,6 +33,7 @@ if (!config.patch) {
 
 const ambient = process.argv.includes("--ambient");
 const experience = ambient ? AMBIENT_EXPERIENCE : (arg("experience") ?? "Test A");
+if (!experience.trim() || /[/\\\0]/.test(experience)) throw new Error("The experience must be a filename stem");
 const seconds = Number(arg("seconds") ?? (ambient ? 20 : 64.5));
 const fps = Number(arg("fps") ?? 40);
 const bits = Number(arg("bits") ?? 8) as SampleBits;
@@ -107,7 +108,7 @@ for (let f = 0; f < frameCount; f++) {
 }
 
 fs.mkdirSync(config.showsDir, { recursive: true });
-const file = path.join(config.showsDir, `${slugOf(experience)}${SHOW_EXTENSION}`);
+const file = path.join(config.showsDir, `${experience.toLowerCase()}${SHOW_EXTENSION}`);
 // Write beside, then rename: a client that is mid-scan (or mid-show) must never map a half-written file.
 const tmp = `${file}.tmp`;
 fs.writeFileSync(tmp, out);

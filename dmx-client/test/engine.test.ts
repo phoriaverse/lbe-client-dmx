@@ -53,7 +53,7 @@ describe("engine", () => {
     sim = await startSimGateway({ port: 0, requireSourcePort: null });
     socket = await ArtNetSocket.open(0);
     patch = simplePatch({ host: "127.0.0.1", port: sim.port, fixtures: 2, pixelsPerFixture: 4, gamma: 1 });
-    writeShow(dir, "test.show", "Test X", patch, 20, (f) => f + 1); // 0.5s, frames tagged 1…20
+    writeShow(dir, "test x.SHOW", "Original bake name", patch, 20, (f) => f + 1); // 0.5s, frames tagged 1…20
     if (opts.ambient) writeShow(dir, "ambient.show", AMBIENT_EXPERIENCE, patch, 4, () => 200, true);
 
     const config: Config = {
@@ -116,19 +116,24 @@ describe("engine", () => {
     expect(engine.owner).toBe("idle");
   });
 
-  test("matches the experience name forgivingly, and reports ready even with no show", async () => {
-    await boot();
-    engine.onStartExperience("test-x");
-    expect(session.last).toBe("test-x - Ready");
-    engine.onCloseExperience("operator");
+  test("assigns by whole filename and stays dark on a missing cue even with an ambient loop", async () => {
+    await boot({ ambient: true });
+    expect(engine.onStartExperience("TEST X")).toBe(500);
+    expect(engine.status.session?.show).toBe("test x.SHOW");
 
-    engine.onStartExperience("Unknown Experience");
-    expect(session.last).toBe("Unknown Experience - Ready (no lighting show)");
-    expect(session.readies).toBe(2); // fail the light, not the room
-    engine.onBeginPlayback(clock.now());
-    await wait(40);
-    expect(session.last).toBe("Unknown Experience - Playing");
-    expect(red()).toBe(0);
+    for (const state of ["test-x", "Original bake name", "Onboarding"]) {
+      expect(engine.onStartExperience(state)).toBeUndefined();
+      engine.onBeginPlayback(clock.now());
+      await wait(30);
+      expect(session.last).toBe(`${state} - Ready (no lighting show)`);
+      expect(engine.positionMs()).toBeUndefined();
+      expect(red()).toBe(0);
+    }
+    expect(session.readies).toBe(4);
+
+    fs.renameSync(path.join(dir, "test x.SHOW"), path.join(dir, "the shape of memory.show"));
+    expect(engine.onStartExperience("The Shape of Memory")).toBe(500);
+    expect(engine.onStartExperience("Test X")).toBeUndefined();
   });
 
   test("a close or a begin with no session is ignored", async () => {

@@ -111,13 +111,7 @@ export class Engine {
     this.session?.setState(`${experience} - Preparing`);
 
     const entry = this.library.find(experience);
-    let note = "";
-    if (!entry) {
-      // Fail the light, not the room: holding eight headsets at the Ready barrier because a
-      // lighting machine is missing a bake is the worse failure. Report ready and stay on idle.
-      console.warn(`[engine] no show answers to "${experience}" — reporting ready anyway and holding the idle look`);
-      note = " (no lighting show)";
-    } else {
+    if (entry) {
       try {
         const show = this.library.load(entry);
         const outputProblems = this.output.patchProblems(show.show.header.patch);
@@ -128,11 +122,12 @@ export class Engine {
         console.log(`[engine] "${experience}" → ${entry.file} (${h.frameCount} frames @ ${h.fps}fps ${h.bits}-bit, ${(durationMsOf(h) / 1000).toFixed(1)}s)`);
       } catch (err) {
         this.session?.reportError("Load lighting show " + experience + " file=" + entry.file, err);
-        console.error(`[engine] could not load ${entry.file}: ${err instanceof Error ? err.message : err} — holding the idle look`);
+        console.error(`[engine] could not load ${entry.file}: ${err instanceof Error ? err.message : err}`);
       }
     }
 
     this.active.phase = "ready";
+    const note = this.active.show ? "" : " (no lighting show)";
     this.session?.setState(`${experience} - Ready${note}`);
     if (!signal) this.session?.sendReady();
     this.changed();
@@ -140,7 +135,7 @@ export class Engine {
   }
 
   onBeginPlayback(startAt: number) {
-    if (!this.active) return; // a start we never saw (we joined mid-session) — nothing to begin
+    if (!this.active?.show) return;
     this.active.startAt = startAt;
     console.log(`[engine] synchronized start in ${Math.max(0, startAt - this.clock.now()).toFixed(0)}ms (server clock ${startAt.toFixed(0)})`);
   }
@@ -329,9 +324,8 @@ export class Engine {
       frame = preview.frame;
       transfer = preview.transfer;
       patch = preview.patch;
-    } else if (this.ambient) {
-      // Before the synchronized start (and for an experience with no show) the room keeps its idle
-      // look rather than going dark — the hand-over to the show is a cut at startAt.
+    } else if (this.ambient && (!this.active || this.active.show)) {
+      // Keep the idle loop until a scheduled cue starts. Unassigned visits stay dark.
       owner = this.active ? "session" : "ambient";
       const { show, bytes } = this.ambient;
       const index = Math.floor(((now - this.ambientEpoch) * show.header.fps) / 1000) % show.header.frameCount;

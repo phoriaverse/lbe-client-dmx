@@ -71,11 +71,11 @@ black; baking at 16-bit cannot remove the final 8-bit fixture-mode limit. A futu
 ## Intro Lissajous sequence
 
 The rig and editable sequence are tracked in Git. To use the current video and room model,
-copy these paths from `Lissajous-Intro-Lucas-2026-11-24.zip` into the same locations in this checkout:
+use these assets from `Lissajous-Intro-Lucas-2026-11-24.zip` in this checkout:
 
 - `dmx-editor/media/Lisajous_Curve_2_From18s_Square_5.1.mp4`
 - `dmx-editor/models/phoria-atrium-walls-2m.glb`
-- `dmx-client/shows/intro-lissajous.show` (or regenerate with Bake once the video is present)
+- Copy `dmx-client/shows/intro-lissajous.show` to `dmx-client/media/introduction.show` for journey playback.
 
 These binary assets are intentionally excluded from Git. The ZIP also includes a matching
 source snapshot and its own launch instructions.
@@ -101,8 +101,8 @@ it is not a sequence playback control. Live must be enabled to send the sequence
 (it resets off when the page reloads). Sequence time zero is already
 source time 18s. The client must have no test pattern or blackout active. The baked lighting file
 is `dmx-client/shows/intro-lissajous.show`, experience **Intro Lissajous**, 1056 frames at 40 fps.
-It contains lighting only; the editor plays the screen video and sound. The LBE controller's
-experience/video assignment and the future waiting-loop transition have not been configured.
+The Introduction state selects the deployed copy by filename. The show contains lighting only.
+Editor preview plays the companion video and audio.
 
 To regenerate the authored intensity track after changing its weights, run
 `bun src/tools/create-lissajous.ts` from `dmx-editor/`, then
@@ -217,8 +217,8 @@ separate. The PavoTube intro sequence is tracked; its media and baked show are s
    ENTTEC, and the user reported that the repeated test looked good.
 
 For show operation, omit `--standalone` and optionally add `--server HOST:PORT` to use the selected
-LBE server. Set the editor sequence's **Experience** to the exact name the server starts, then bake
-its `.show`. Server discovery and show-content alignment are separate from USB setup.
+LBE server. Copy the bake to `dmx-client/media/` using the journey state name, for example
+`introduction.show`. Keep spaces in multiword state names.
 
 To remember the device path, create a gitignored `dmx-client/config.pavotube.local.json`:
 

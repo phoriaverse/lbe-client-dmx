@@ -1,17 +1,13 @@
-// The show library: the .show files on this machine, and which experience each answers to.
-//
-// The control server only ever NAMES an experience. Like a screen resolving a video on its own
-// disk, we resolve that name against the headers of the files in shows/ — a baked show never
-// crosses the LAN at showtime. The directory is re-read whenever it matters (each start, and
-// periodically while idle), so dropping in a fresh bake needs no restart.
+// The local media directory is rescanned on each visit, so deploying a cue only takes a file rename or copy.
 
 import fs from "node:fs";
 import path from "node:path";
 import { validatePatch } from "./shared/patch";
-import { AMBIENT_EXPERIENCE, type ParsedShow, SHOW_EXTENSION, parseShow, showHeaderSpan, slugOf } from "./shared/show-file";
+import { AMBIENT_EXPERIENCE, type ParsedShow, SHOW_EXTENSION, parseShow, showHeaderSpan } from "./shared/show-file";
 
 export interface ShowEntry {
   file: string;
+  state: string;
   path: string;
   size: number;
   mtimeMs: number;
@@ -57,7 +53,7 @@ export class ShowLibrary {
   scan(): boolean {
     let names: string[] = [];
     try {
-      names = fs.readdirSync(this.dir).filter((n) => n.endsWith(SHOW_EXTENSION)).sort();
+      names = fs.readdirSync(this.dir).filter((n) => path.extname(n).toLowerCase() === SHOW_EXTENSION).sort();
     } catch {
       // No shows directory is not an error — it is an unconfigured client, and it stays dark.
     }
@@ -65,7 +61,7 @@ export class ShowLibrary {
     const stats = names.map((file) => {
       const p = path.join(this.dir, file);
       const st = fs.statSync(p, { throwIfNoEntry: false });
-      return { file, path: p, size: st?.size ?? 0, mtimeMs: st?.mtimeMs ?? 0 };
+      return { file, state: path.parse(file).name, path: p, size: st?.size ?? 0, mtimeMs: st?.mtimeMs ?? 0 };
     });
     const signature = stats.map((s) => `${s.file}:${s.size}:${s.mtimeMs}`).join("|");
     if (signature === this.signature) return false;
@@ -81,44 +77,21 @@ export class ShowLibrary {
       }
     }
 
-    // Two shows claiming one experience is ambiguous, and silently picking one is how the wrong
-    // look ends up on the wall. Newest bake wins — and it is said out loud.
-    const byExperience = new Map<string, ShowEntry>();
-    for (const entry of shows) {
-      const key = slugOf(entry.show.header.experience);
-      const existing = byExperience.get(key);
-      if (!existing) {
-        byExperience.set(key, entry);
-        continue;
-      }
-      const [winner, loser] = entry.mtimeMs > existing.mtimeMs ? [entry, existing] : [existing, entry];
-      byExperience.set(key, winner);
-      problems.push({ file: loser.file, problem: `also answers to "${loser.show.header.experience}" — ${winner.file} is newer and wins` });
-    }
-
     this.shows = shows;
     this.problems = problems;
     for (const p of problems) console.warn(`[shows] ${p.file}: ${p.problem}`);
     console.log(
       shows.length
-        ? `[shows] ${shows.map((s) => `${s.file} → "${s.show.header.experience}"`).join(", ")}`
+        ? `[shows] ${shows.map((s) => s.file).join(", ")}`
         : `[shows] no ${SHOW_EXTENSION} files in ${this.dir}`,
     );
     return true;
   }
 
-  /**
-   * The show for an experience name. Exact match first; then a forgiving slug match, so
-   * "Second Nature", "second nature" and "second-nature" are one experience. Newest wins a tie.
-   */
-  find(experience: string): ShowEntry | null {
-    const newestFirst = [...this.shows].sort((a, b) => b.mtimeMs - a.mtimeMs);
-    const slug = slugOf(experience);
-    return (
-      newestFirst.find((s) => s.show.header.experience === experience) ??
-      newestFirst.find((s) => slugOf(s.show.header.experience) === slug) ??
-      null
-    );
+  /** Match the entire filename stem. Scan order breaks ties consistently with the audio and display clients. */
+  find(state: string): ShowEntry | null {
+    const stem = state.toLowerCase();
+    return this.shows.find((entry) => entry.state.toLowerCase() === stem) ?? null;
   }
 
   /** The idle loop, if one has been baked. */

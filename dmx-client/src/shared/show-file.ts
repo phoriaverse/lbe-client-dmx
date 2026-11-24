@@ -4,7 +4,7 @@
 // indexing with the server clock — frame = floor((serverNow − startAt) × fps) — so there is nothing
 // to drift: position is recomputed from the clock on every tick, never accumulated.
 //
-// The file carries its own patch and the experience name it answers to, so a show Mac needs this
+// The file carries its own patch and authoring metadata, so a show Mac needs this
 // one file and nothing else from the editor.
 //
 //   offset 0   "LBESHOW1"                       8 bytes, ASCII magic + format generation
@@ -31,7 +31,7 @@ export const SHOW_VERSION = 1;
 /** The exponent samples are encoded with. Recorded per file; this is what a bake writes. */
 export const SHOW_TRANSFER = 2.2;
 export const SHOW_EXTENSION = ".show";
-/** A show whose `experience` is this plays as the idle loop between sessions. */
+/** Filename stem for the idle loop between sessions. */
 export const AMBIENT_EXPERIENCE = "ambient";
 
 export type SampleBits = 8 | 16;
@@ -40,7 +40,7 @@ export interface ShowHeader {
   version: number;
   /** The sequence's own name, for humans and logs. */
   name: string;
-  /** The experience this answers to — matched against the name the control server sends. */
+  /** Experience recorded by the author. The player assigns states by filename. */
   experience: string;
   fps: number;
   bits: SampleBits;
@@ -160,7 +160,7 @@ export function encodeSample(linear: number, bits: SampleBits, transfer = SHOW_T
   return Math.round(Math.pow(linear, 1 / transfer) * max);
 }
 
-/** Slug used to compare experience names forgivingly: "Second Nature" ≈ "second-nature". */
+/** Filesystem slug for editor bake output. */
 export function slugOf(name: string): string {
   return name
     .normalize("NFKD")

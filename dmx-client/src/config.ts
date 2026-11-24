@@ -150,7 +150,7 @@ export function loadConfig(): Config {
     name: flag("name") ?? process.env.LBE_LIGHTING_NAME ?? file.name ?? os.hostname().replace(/\.local$/, ""),
     server: flag("server") ?? process.env.LBE_SERVER ?? file.server,
     controlPort: num(flag("port"), process.env.LBE_LIGHTING_PORT, file.controlPort) ?? DEFAULT_CONTROL_PORT,
-    showsDir: path.resolve(ROOT, flag("shows") ?? process.env.LBE_LIGHTING_SHOWS_DIR ?? file.showsDir ?? "shows"),
+    showsDir: path.resolve(ROOT, flag("shows") ?? process.env.LBE_LIGHTING_MEDIA_DIR ?? process.env.LBE_LIGHTING_SHOWS_DIR ?? file.showsDir ?? "media"),
     outputFps,
     outputLatencyMs: num(file.outputLatencyMs) ?? 0,
     master: clamp01(num(file.master) ?? 1),

@@ -2,7 +2,23 @@
 
 ## Audience journey
 
-Each server visit is logged under its own state name. The rig looks up that state's local show, primes it and renders against the shared start instant. It votes ready at the end of the timeline. An unassigned cue logs and votes ready immediately. Seating, Onboarding and Doffing can each receive a distinct lighting sequence as designs become available. SoundSpace discovery defaults to UDP 41235 and service `soundspace`. [Journey and operator controls](../../../server/web/JOURNEY.md)
+Put baked `.show` files in [media/](media/). On each visit the client matches the **whole filename stem** to the state, ignoring case and preserving spaces and punctuation. If multiple files match, the first valid file in filename sort order wins. A missing cue keeps the rig dark and releases the ready vote immediately.
+
+| Journey state | Local filename |
+| --- | --- |
+| Seating | `seating.show` |
+| Onboarding | `onboarding.show` |
+| Doffing | `doffing.show` |
+| Introduction | `introduction.show` |
+| Second Nature | `second nature.show` |
+| The Shape of Memory | `the shape of memory.show` |
+| Sit Around The Fire | `sit around the fire.show` |
+| Outro | `outro.show` |
+| Offboarding | `offboarding.show` |
+
+The client primes a matching cue, renders against the shared start instant and votes ready at the end of the timeline. To assign an existing bake, copy it under the desired filename. The embedded experience records the original authoring name.
+
+Phill’s 26.4-second PavoTube cue is deployed locally as `media/introduction.show`. Run `bun run start:pavotube` for this rig. Copy the media directory separately when moving to another Mac. SoundSpace discovery uses UDP 41235 and service `soundspace`. [Journey and operator controls](../../../server/web/JOURNEY.md)
 
 The single-experience session described below is supported in legacy rehearsal mode.
 
@@ -40,7 +56,7 @@ sudo ifconfig en9 alias 2.0.0.2 255.0.0.0
 | `--server host:port` | Pin the control server instead of discovering it |
 | `--name "Lighting"` | Name in the console's roster (default: this Mac's hostname) |
 | `--port 8091` | Control page / editor preview port |
-| `--shows <dir>` | Where the `.show` files are (default `shows/`) |
+| `--shows <dir>` | Local playback directory (default `media/`, also settable with `LBE_LIGHTING_MEDIA_DIR`) |
 | `--gateway host[:port]` | Repoint the default rig — at the simulator, usually |
 | `--source-port <n>` | UDP source port. Leave at 6454 for real hardware |
 | `--config <file>` | Site configuration, relative to `dmx-client/` or absolute |
@@ -66,7 +82,7 @@ work is on the wall when the room starts.
 
 It joins the control server as role `player`, like a screen, so it needs no server change:
 
-1. `startExperience "Second Nature"` → it finds the `.show` whose header names that experience,
+1. `startExperience "Second Nature"` → it finds `second nature.show`,
    maps it, and reports `ready`.
 2. `beginPlayback { startAt }` → at that server-clock instant it starts reading frames.
    The frame is `floor((serverNow − startAt + outputLatencyMs) × fps)`, recomputed every tick —
@@ -75,17 +91,12 @@ It joins the control server as role `player`, like a screen, so it needs no serv
 
 Three behaviours worth knowing:
 
-- **A missing show does not hold the room.** It reports `ready` anyway and keeps the idle look —
-  the roster shows `… - Ready (no lighting show)`. Fail the light, not the room.
+- A missing show reports `ready` immediately and keeps the fixtures dark.
 - **A dropped connection does not stop the lights.** Playback runs on the last good clock and the
   reconnect picks up the close. If the close never comes, it returns to idle by itself 15s after
   the show's last frame.
 - **It never sends `durationMs` on `ready`.** That field is a screen reporting its video's length
   for the server to check; a lighting show's length is not that.
-
-Experience names are matched exactly first, then by slug (`Second Nature` = `second-nature`). The
-name is the "magic string" the editor's sequence nominates — it has to match what the console
-sends, i.e. the keys in `bun-server/src/experiences.ts`.
 
 ## Brightness
 
@@ -134,7 +145,8 @@ From the bench (Notion: *CL05 Tubes*, *CL-104PS*):
 ```
 config.json            site defaults: rig, cap, fps, latency
 config.local.json      on-site overrides written by the control page (gitignored)
-shows/*.show           baked shows (gitignored) — the only thing a show Mac needs from the editor
+media/*.show           state-named playback payloads (local to the show Mac)
+shows/*.show           editor bake output
 src/
   index.ts             entry: wires everything, blackout on every exit
   engine.ts            the tick: who owns the fixtures, which frame, by the server clock

@@ -183,7 +183,7 @@
         bar.hidden = true;
         if (e.session) {
           const { experience, phase, show, positionMs, durationMs } = e.session;
-          detail = `${experience} — ${phase}` + (show ? ` · ${show}` : " · no show for this experience, holding the idle look");
+          detail = `${experience} — ${phase}` + (show ? ` · ${show}` : " · no show for this state");
           if (positionMs !== null && durationMs) {
             detail += ` · ${time(positionMs)} / ${time(durationMs)}`;
             bar.hidden = false;
@@ -244,14 +244,14 @@
 
         const shows = $("shows");
         if (s.shows.length === 0) {
-          shows.innerHTML = '<div class="empty">No .show files yet. Bake one in lighting-editor, or run <code>bun run make-test-show</code>.</div>';
+          shows.innerHTML = '<div class="empty">Place a state-named .show file in the media directory.</div>';
         } else {
           shows.innerHTML =
-            "<table><tr><th>Experience</th><th>File</th><th>Length</th><th>Format</th><th>Baked</th></tr>" +
+            "<table><tr><th>State</th><th>File</th><th>Length</th><th>Format</th><th>Baked</th></tr>" +
             s.shows
               .map(
                 (x) =>
-                  `<tr><td>${esc(x.experience)}</td><td>${esc(x.file)}</td><td>${time(x.durationMs)}</td>` +
+                  `<tr><td>${esc(x.state)}</td><td>${esc(x.file)}</td><td>${time(x.durationMs)}</td>` +
                   `<td>${x.pixelCount} px · ${x.fps} fps · ${x.bits}-bit</td><td>${new Date(x.bakedAt).toLocaleString()}</td></tr>`,
               )
               .join("") +

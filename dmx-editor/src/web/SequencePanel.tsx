@@ -89,7 +89,7 @@ export function SequencePanel() {
       <TextInput
         size="xs"
         label="Experience"
-        description="The name the console starts — exactly as in bun-server's experiences.ts. “ambient” is the idle loop."
+        description="Names the editor’s bake and is saved in its header."
         value={seq.experience}
         onChange={(e) => editSeq("Sequence experience", (d) => void (d.experience = e.currentTarget.value), "seq.experience")}
       />
@@ -215,7 +215,7 @@ export function SequencePanel() {
         </Card>
       )}
       <Text size="xs" c="dimmed">
-        Saves first, then bakes what is on disk into {bake.showsDir}/ (written beside, then renamed). A running lighting-client picks it up by itself. Also: <code>bun run bake -- {seq.id}</code>
+        Bakes into {bake.showsDir}/. For journey playback, copy the file to <code>dmx-client/media/</code> under its state name, for example <code>second nature.show</code>.
       </Text>
 
       <Divider label="Live" labelPosition="left" />
