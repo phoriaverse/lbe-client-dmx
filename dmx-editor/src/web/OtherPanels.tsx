@@ -52,7 +52,7 @@ export function ProfilesPanel() {
         + Profile
       </Button>
       <Text size="xs" c="dimmed">
-        Pixels run along the fixture's local X, pixel 0 (data in) at the red-cone end. Gamma 2.2 suits linear-PWM pixels like the CL05; 1.0 for a fixture with its own dimming curve.
+        Pixels run along the fixture's local X, pixel 0 (data in) at the red-cone end. Use Gamma 2.2 for Linear DMX (including PavoTubes set to Linear). Gamma 1.0 assumes the fixture itself applies an approximately 2.2 power curve; it does not describe every built-in dimming curve.
       </Text>
     </Stack>
   );
@@ -171,7 +171,7 @@ export function LivePanel() {
   return (
     <Stack p="sm" gap="sm">
       <Text size="xs" c="dimmed">
-        The editor never talks to a gateway. It streams to a running <b>lighting-client</b>, the only program that sends Art-Net — and a live LBE session there always wins.
+        The editor streams to a running <b>lighting-client</b>, which sends Art-Net or ENTTEC USB output. A live LBE session takes priority over editor preview.
       </Text>
       <Group gap={6} align="end" wrap="nowrap">
         <TextInput size="xs" label="lighting-client" style={{ flex: 1 }} value={address} onChange={(e) => setAddress(e.currentTarget.value)} placeholder="localhost:8091" />
@@ -214,6 +214,11 @@ export function LivePanel() {
             {snap.status.session && ` (${snap.status.session.experience}, ${snap.status.session.phase})`}
           </Text>
         )}
+        {snap.status?.output && (
+          <Text size="xs" mt={4} c={snap.status.output.error ? "red" : snap.status.output.kind === "preview" ? "orange" : "dimmed"}>
+            {snap.status.output.error ?? snap.status.output.label}
+          </Text>
+        )}
         {snap.status?.problem && (
           <Alert color="red" p="xs" mt={6}>
             <Text size="xs">{snap.status.problem}</Text>
@@ -226,7 +231,7 @@ export function LivePanel() {
           Identify
         </Text>
         <Text size="xs" c="dimmed" mb={6}>
-          Blinks the selected tubes (a selected rail blinks all its tubes) dim white, pixel 0 red. It follows the selection, so click through tubes to find each one on the wall.
+          Pauses the sequence and blinks the selected tubes (a selected rail blinks all its tubes) dim white, pixel 0 red. Play exits Identify or Walk and resumes the sequence. Enable Live to send the sequence to the tubes.
         </Text>
         <Group gap={6}>
           <Button size="xs" color={ui.identify ? "orange" : undefined} variant={ui.identify ? "filled" : "light"} onClick={() => setUi({ identify: !ui.identify, walk: false })}>
@@ -248,7 +253,7 @@ export function LivePanel() {
         )}
       </Card>
 
-      <Card p="xs" withBorder>
+      {(!snap.status?.output || snap.status.output.kind === "artnet") && <Card p="xs" withBorder>
         <Group justify="space-between">
           <Text fw={600} size="sm">
             Scan the fixture network
@@ -283,7 +288,7 @@ export function LivePanel() {
             ))}
           </Stack>
         )}
-      </Card>
+      </Card>}
     </Stack>
   );
 }

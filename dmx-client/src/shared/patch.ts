@@ -51,8 +51,8 @@ export interface PixelRun {
   /**
    * The exponent that turns a perceptual level (0–1, what a fade "looks like") into this fixture's
    * drive level. 2.2 for a linear-PWM pixel like the CL05 — 0→31 on the wire is a far bigger visible
-   * step than 31→255, so an uncorrected fade lurches. 1.0 for a fixture that already applies its own
-   * dimming curve. See output.ts for where it is applied.
+   * step than 31→255, so an uncorrected fade lurches. 1.0 assumes the fixture itself applies an
+   * approximately 2.2 power response; arbitrary S/log curves need calibration. See output.ts.
    */
   gamma: number;
   /** Per-channel trim in linear light, for white-balancing a fixture type by eye. Default [1,1,1]. */

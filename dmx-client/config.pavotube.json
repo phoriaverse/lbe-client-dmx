@@ -1,0 +1,12 @@
+{
+  "name": "PavoTube room lights",
+  "output": "enttec",
+  "usbUniverse": 1,
+  "rigFile": "../dmx-editor/project/pavotube/rig.json",
+  "controlPort": 8091,
+  "outputFps": 40,
+  "outputLatencyMs": 0,
+  "master": 1,
+  "cap": 0.5,
+  "sequenced": false
+}

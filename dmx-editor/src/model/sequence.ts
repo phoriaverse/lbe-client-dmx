@@ -21,7 +21,22 @@ export type Sampling =
   /** Every surface whose projection covers a pixel adds its colour. Uncovered pixels stay dark. */
   | "projection"
   /** Every pixel takes the closest point of whichever surface is nearest to it. Nothing is dark. */
-  | "nearest";
+  | "nearest"
+  /** A recorded colour/intensity track drives every pixel together, independent of position. */
+  | "unison";
+
+export interface UnisonLighting {
+  /** Playback video whose zero is also the start of this track. */
+  video: string;
+  /** Original source and trim position, retained for preparing a waiting loop later. */
+  source: string;
+  sourceStartMs: number;
+  /** Fixed colour in sRGB bytes; intensity samples below are linear light. */
+  color: [number, number, number];
+  fps: number;
+  intensities: number[];
+  description: string;
+}
 
 export interface SurfaceUse {
   /** Bare file name, resolved in dmx-editor/media/ then the repo-root media/. null = nothing. */
@@ -54,6 +69,8 @@ export interface SequenceDocument {
   sampleSize: number;
   /** Per surface node id. A surface with no entry plays nothing. */
   surfaces: Record<string, SurfaceUse>;
+  /** Optional analysed/authored track, evaluated by the same clock in preview and bake. */
+  unison?: UnisonLighting;
 }
 
 export const DEFAULT_LEVEL = 0.35;
@@ -94,13 +111,26 @@ export function sequenceFileProblems(raw: unknown): string[] {
   if (raw.bits !== 8 && raw.bits !== 16) p.push(`bits is ${raw.bits} (8 or 16)`);
   if (raw.durationMs !== null && !(isNum(raw.durationMs) && raw.durationMs > 0)) p.push(`durationMs is ${raw.durationMs}`);
   if (!isNum(raw.level) || raw.level < 0) p.push(`level is ${raw.level}`);
-  if (raw.sampling !== "projection" && raw.sampling !== "nearest") p.push(`sampling is ${JSON.stringify(raw.sampling)}`);
+  if (raw.sampling !== "projection" && raw.sampling !== "nearest" && raw.sampling !== "unison") p.push(`sampling is ${JSON.stringify(raw.sampling)}`);
+  if (raw.unison !== undefined) {
+    const u = raw.unison;
+    if (!isObj(u)) p.push("unison track is malformed");
+    else {
+      if (typeof u.video !== "string" || !u.video.trim() || typeof u.source !== "string" || typeof u.description !== "string") p.push("unison source is missing");
+      if (!isNum(u.sourceStartMs) || u.sourceStartMs < 0) p.push("unison source start must be non-negative");
+      if (!isNum(u.fps) || u.fps <= 0 || u.fps > 1000) p.push("unison fps is invalid");
+      if (!Array.isArray(u.color) || u.color.length !== 3 || u.color.some((v) => !isNum(v) || v < 0 || v > 255 || !Number.isInteger(v))) p.push("unison colour must be three sRGB bytes");
+      if (!Array.isArray(u.intensities) || !u.intensities.length || u.intensities.some((v) => !isNum(v) || v < 0 || v > 1)) p.push("unison intensities must be samples between 0 and 1");
+    }
+  }
+  if (raw.sampling === "unison" && raw.unison === undefined) p.push("unison sampling needs a lighting track");
   if (!Number.isInteger(raw.sampleSize) || (raw.sampleSize as number) < 2 || (raw.sampleSize as number) > 4096) p.push(`sampleSize is ${raw.sampleSize}`);
   if (!isObj(raw.surfaces)) p.push("surfaces is missing");
   else
     for (const [id, use] of Object.entries(raw.surfaces)) {
       if (!isObj(use) || (use.video !== null && typeof use.video !== "string") || !isNum(use.gain) || use.gain < 0) p.push(`surface "${id}" is malformed`);
     }
+  if (raw.sampling === "unison" && isObj(raw.unison) && isObj(raw.surfaces) && !Object.values(raw.surfaces).some((use) => isObj(use) && use.video === (raw.unison as Record<string, unknown>).video)) p.push("unison video must be assigned to a screen");
   return p;
 }
 

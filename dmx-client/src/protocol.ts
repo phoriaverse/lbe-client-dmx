@@ -1,22 +1,34 @@
-// The LBE wire protocol, re-exported from the control server rather than copied — the same rule
-// video-client follows. These are `export type` only, so the import is erased before anything runs:
-// lighting-client still starts on a show Mac with bun-server/ absent. A protocol change breaks this
-// project's typecheck, which is the point.
+// Wire messages this standalone lighting client consumes/emits. Compatible with the Bun server
+// lifecycle; no runtime dependency on the former monorepo's absent bun-server directory.
+// Source: phoriaverse/lbe-server-web f8073812 src/protocol.ts. Coordinate wire changes with it.
+// Some servers do not evict duplicate lighting-client identities; USB's exclusive open is local.
+export const CLIENT_TYPE = "lighting-client";
+export type CloseSupersededCode = 4000;
+export type CloseReason = "media" | "operator";
 
-import type { ClientMessage, ClientType } from "../../bun-server/src/protocol";
+export interface ClientDiagnostics {
+  clockSynced: boolean;
+  offsetMs: number;
+  rttMs: number;
+  jitterMs: number;
+  sampleAgeMs: number;
+  serverNowEstimateMs: number;
+  positionMs?: number;
+}
 
-export type {
-  ClientDiagnostics,
-  ClientMessage,
-  CloseReason,
-  CloseSupersededCode,
-  ServerMessage,
-} from "../../bun-server/src/protocol";
-
-// What we declare ourselves as. "lighting-client" is in the server's SINGLE_INSTANCE_TYPES, so a
-// reconnect evicts its own half-open ghost (which would otherwise hold the Ready barrier) and the
-// loser of a duplicate is told so with CLOSE_SUPERSEDED — see session.ts.
-export const CLIENT_TYPE = "lighting-client" satisfies ClientType;
-
-/** Everything we send. */
+export type ClientMessage =
+  | { type: "identify"; role: "player"; name: string; clientType: typeof CLIENT_TYPE }
+  | { type: "state"; state: string }
+  | { type: "ready" }
+  | { type: "timeSync"; t0: number }
+  | { type: "diagnostics"; diag: ClientDiagnostics }
+  | { type: "ack"; commandId: string };
 export type OutboundMessage = ClientMessage;
+
+export type ServerMessage =
+  | { type: "timeSyncReply"; t0: number; tServer: number }
+  | { type: "startExperience"; experience: string; mediaFile?: string }
+  | { type: "beginPlayback"; startAt: number }
+  | { type: "closeExperience"; reason: CloseReason }
+  | { type: "command"; command: string; commandId: string }
+  | { type: "welcome"; clientId: string };

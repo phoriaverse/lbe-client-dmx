@@ -9,7 +9,7 @@ body,
 
 .app {
   display: grid;
-  grid-template-columns: 260px 1fr 380px;
+  grid-template-columns: clamp(150px, 20vw, 260px) minmax(0, 1fr) clamp(260px, 32vw, 380px);
   grid-template-rows: 44px 1fr;
   grid-template-areas: "bar bar bar" "left view right";
   height: 100vh;
@@ -135,7 +135,9 @@ body,
   position: absolute;
   top: 8px;
   left: 8px;
+  right: 8px;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   padding: 4px 8px;

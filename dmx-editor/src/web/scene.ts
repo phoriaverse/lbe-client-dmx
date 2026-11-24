@@ -45,6 +45,7 @@ const COLOURS = {
   bodyInSelection: new THREE.Color(0xc7783a),
   bodyUnpatched: new THREE.Color(0x6a3a3a),
   pixelOff: new THREE.Color(0x15171c),
+  fixtureGuide: new THREE.Color(0xb7c6de),
   inputEnd: new THREE.Color(0xd23c3c),
   surfaceEmpty: new THREE.Color(0x3b6ea5),
   surfaceOutline: new THREE.Color(0x5b6b85),
@@ -111,6 +112,7 @@ export class SceneView {
   private roomStatus: (s: string | null) => void = () => {};
   private views = new Map<string, NodeView>();
   private rig: RigDocument | null = null;
+  private framedInitialRig = false;
   private opts: SceneOptions = { selection: [], tool: "translate", space: "local", pivot: "pivot", snapMove: 0.25, snapRotate: 15, showSurfaces: true };
   private frame: Float32Array | null = null;
   private exposure = 1;
@@ -290,6 +292,10 @@ export class SceneView {
     this.paintSurfaces();
     this.syncGizmo();
     this.syncRoom(rig.room);
+    if (!this.framedInitialRig && rig.nodes.some((node) => node.light || node.surface)) {
+      this.frameSelection([]);
+      this.framedInitialRig = true;
+    }
     this.dirty = true;
   }
 
@@ -410,10 +416,27 @@ export class SceneView {
     marker.userData = { part: true };
     marker.raycast = () => {};
 
-    view.obj.add(body, pix, marker);
+    // Keep a one-screen-pixel guide visible when a metre-long tube is viewed across a large room.
+    // It is a viewport overlay only; it does not change pixel samples or physical fixture size.
+    const guideGeometry = new THREE.BufferGeometry();
+    const ends = new Float32Array(pixels * 6);
+    for (let i = 0; i < pixels; i++) {
+      ends[i * 6] = -length / 2 + i * length / pixels;
+      ends[i * 6 + 3] = -length / 2 + (i + 1) * length / pixels;
+    }
+    guideGeometry.setAttribute("position", new THREE.BufferAttribute(ends, 3));
+    guideGeometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(pixels * 6), 3));
+    const guide = new THREE.LineSegments(guideGeometry,
+      new THREE.LineBasicMaterial({ vertexColors: true, depthTest: false, depthWrite: false, transparent: true }));
+    guide.userData = { part: true };
+    guide.renderOrder = 1; // visible over the translucent tube body; each segment carries its pixel's colour
+    guide.raycast = () => {};
+
+    view.obj.add(body, pix, marker, guide);
     view.body = body;
     view.pixels = pix;
     view.marker = marker;
+    view.outline = guide;
   }
 
   private paintBodies() {
@@ -438,17 +461,26 @@ export class SceneView {
     if (!rig) return;
     const frame = this.frame;
     for (const span of rigOrder(rig)) {
-      const pix = this.views.get(span.light.id)?.pixels;
+      const view = this.views.get(span.light.id);
+      const pix = view?.pixels;
       if (!pix) continue;
+      const guideColours = view.outline?.geometry.getAttribute("color");
+      const guideOff = this.opts.selection.includes(span.light.id) ? COLOURS.bodySelected : COLOURS.fixtureGuide;
       for (let i = 0; i < span.count && i < pix.count; i++) {
         const o = (span.first + i) * 3;
         if (frame && o + 2 < frame.length && (frame[o]! > 0 || frame[o + 1]! > 0 || frame[o + 2]! > 0)) {
           const k = this.exposure;
           this.tmpColour.setRGB(Math.min(1, frame[o]! * k), Math.min(1, frame[o + 1]! * k), Math.min(1, frame[o + 2]! * k), THREE.LinearSRGBColorSpace);
           pix.setColorAt(i, this.tmpColour);
-        } else pix.setColorAt(i, COLOURS.pixelOff);
+        } else {
+          pix.setColorAt(i, COLOURS.pixelOff);
+          this.tmpColour.copy(guideOff);
+        }
+        guideColours?.setXYZ(i * 2, this.tmpColour.r, this.tmpColour.g, this.tmpColour.b);
+        guideColours?.setXYZ(i * 2 + 1, this.tmpColour.r, this.tmpColour.g, this.tmpColour.b);
       }
       if (pix.instanceColor) pix.instanceColor.needsUpdate = true;
+      if (guideColours) guideColours.needsUpdate = true;
     }
   }
 

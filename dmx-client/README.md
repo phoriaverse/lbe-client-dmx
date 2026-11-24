@@ -1,11 +1,15 @@
 # dmx-client
 
-The LBE's lighting player. It plays baked `.show` files to Art-Net pixel fixtures, starting on the
+The LBE's lighting player. It plays baked `.show` files through Art-Net or ENTTEC USB, starting on the
 same clock-synced instant as the headsets and screens.
 
-It is **playback only**, and it is the **only program that ever sends Art-Net**. Authoring — the 3D
+It is **playback only**, and it is the **only program that drives the fixtures**. Authoring — the 3D
 scene, the timeline, the bake — is `dmx-editor/`, which previews on the real fixtures *through*
 a running client rather than beside it.
+
+For the **eight PavoTube II 30XR tubes → TimoLink TX → ENTTEC USB Pro Mk2** rig, follow
+[PAVOTUBE_SETUP.md](../PAVOTUBE_SETUP.md). It includes the correct preset and USB commands.
+The original `bun run start` defaults and CL-104PS network instructions below still select Art-Net.
 
 ## Run it
 
@@ -33,6 +37,10 @@ sudo ifconfig en9 alias 2.0.0.2 255.0.0.0
 | `--shows <dir>` | Where the `.show` files are (default `shows/`) |
 | `--gateway host[:port]` | Repoint the default rig — at the simulator, usually |
 | `--source-port <n>` | UDP source port. Leave at 6454 for real hardware |
+| `--config <file>` | Site configuration, relative to `dmx-client/` or absolute |
+| `--output artnet\|enttec\|preview` | Select network, USB OUT 1, or no hardware output |
+| `--usb-device <path>` | Select an ENTTEC VCP device from `bun run usb:list` |
+| `--standalone` | Disable LBE server discovery/connection for local lighting checks |
 
 ## What it does, in order of who wins
 
@@ -75,8 +83,8 @@ sends, i.e. the keys in `bun-server/src/experiences.ts`.
 
 ## Brightness
 
-`config.json` holds the site defaults; the control page's master slider writes to
-`config.local.json` (gitignored) so moving it never dirties a tracked file.
+The selected config holds the site defaults; the control page's master slider writes to a matching
+`.local.json` file (gitignored), e.g. `config.pavotube.local.json` for the PavoTube preset.
 
 - **`cap`** — the site ceiling. What 100% means here. Default **0.5**, deliberately: the
   full-brightness test of a 21-tube chain is still an open item in the hardware notes.
@@ -85,7 +93,22 @@ sends, i.e. the keys in `bun-server/src/experiences.ts`.
 Both scale **light**, not fader position: 0.5 is half the light and about half the power. They
 multiply, and neither needs a re-bake.
 
-## Hardware facts this is built around
+The PavoTube profile uses **gamma 2.2** for tubes set to **Linear DMX**. In this codebase gamma is
+the perceptual-to-drive correction, not the tube menu's curve name. Gamma 1 assumes the fixture
+already applies an approximately 2.2 power response; it is not a generic setting for every
+nonlinear fixture. The user confirmed Linear on one tube; check the same setting on the rest.
+
+**Linear-light ramp** gives equal light-output steps. **Perceptual ramp** spaces CIE L* evenly
+from 0 to 100 relative to the brightest pixel, as an approximate perceptual lerp. Both share the
+same peak and pass through the normal master/cap/profile pipeline. Pattern level remains a
+power-2.2 encoded level: 50% is about 22% linear light before master/cap.
+
+The **Estimated light** monitor reverses the active fixture's drive curve, including final DMX
+quantisation, then uses the [sRGB display transfer](https://www.w3.org/TR/css-color-4/#color-conversion-code).
+The **DMX values** view and `/api/frame` retain the actual wire bytes; `/api/appearance` returns
+estimated sRGB bytes. This is a relative preview using the fixture profile, not measured luminance.
+
+## Original Art-Net rig hardware facts
 
 From the bench (Notion: *CL05 Tubes*, *CL-104PS*):
 
@@ -111,6 +134,11 @@ src/
   engine.ts            the tick: who owns the fixtures, which frame, by the server clock
   output.ts            frame → drive levels → universes (gamma, master, cap, colour order)
   artnet.ts            packets and the one socket bound to 6454
+  enttec.ts            exclusive USB VCP connection, handshake, frame queue and disconnect status
+  enttec-protocol.ts   public Pro/API1 serial framing (Mk2 DMX OUT 1)
+  serial-connection.ts Node worker bridge (Bun cannot open this native serial addon on macOS)
+  serial-worker.mjs    Node-only serialport access; requires node on PATH
+  transport.ts        common universe output interface and no-hardware preview
   session.ts           the LBE WebSocket (role "player")
   clock.ts             NTP-lite sync against the server clock
   discovery.ts         finds the control server by UDP beacon
@@ -122,7 +150,8 @@ src/
 ```
 
 `src/shared/` is the contract with the editor. There is one definition of the patch and one of the
-file format; the editor imports them from here.
+file format; the editor imports them from here. Configuration also imports the editor's pure rig
+model to compile `rigFile`, so keep both sibling source folders when running this checkout.
 
 ## The .show file
 

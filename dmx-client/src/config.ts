@@ -8,6 +8,9 @@ import os from "node:os";
 import path from "node:path";
 import { ARTNET_PORT, type ColourOrder, type Patch, simplePatch, validatePatch } from "./shared/patch";
 import { DEFAULT_CONTROL_PORT } from "./shared/preview-protocol";
+import { parseRig } from "../../dmx-editor/src/model/rig";
+import { compileRigPatch, rigProblems } from "../../dmx-editor/src/model/patch";
+import { enttecPatchProblems } from "./transport";
 
 /** The whole rig as one chain of identical fixtures — enough for the bench and for test patterns. */
 export interface RigShorthand {
@@ -21,6 +24,11 @@ export interface RigShorthand {
 }
 
 interface ConfigFile {
+  output?: "artnet" | "enttec" | "preview";
+  usbDevice?: string;
+  usbUniverse?: number;
+  /** Optional editor rig: one source of truth for addresses, patterns, preview and baking. */
+  rigFile?: string;
   name?: string;
   server?: string;
   controlPort?: number;
@@ -35,13 +43,19 @@ interface ConfigFile {
 }
 
 export interface Config {
+  output: "artnet" | "enttec" | "preview";
+  usbDevice?: string;
+  usbUniverse: number;
+  previewUsbUniverse?: number;
+  standalone: boolean;
+  localPath: string;
   /** The name in the console's roster. */
   name: string;
   /** Pinned control server "host:port", or undefined to discover it. */
   server: string | undefined;
   controlPort: number;
   showsDir: string;
-  /** Art-Net refresh rate. DMX tops out near 44Hz; 40 is the conventional pixel rate. */
+  /** Output refresh rate. The ENTTEC Pro supports at most 40 Hz. */
   outputFps: number;
   /**
    * How far ahead of the clock to read the show, in ms — the fixed delay between sending a frame
@@ -86,7 +100,14 @@ const num = (...candidates: (string | number | undefined)[]): number | undefined
 };
 
 export function loadConfig(): Config {
-  const file = { ...readJson(CONFIG_PATH), ...readJson(LOCAL_PATH) };
+  const configPath = path.resolve(ROOT, flag("config") ?? process.env.LBE_LIGHTING_CONFIG ?? CONFIG_PATH);
+  const localPath = configPath.replace(/\.json$/, "") + ".local.json";
+  if (!fs.existsSync(configPath)) throw new Error(`Configuration not found: ${configPath}`);
+  const file = { ...readJson(configPath), ...readJson(localPath) };
+  const kind = flag("output") ?? process.env.LBE_LIGHTING_OUTPUT ?? file.output ?? "artnet";
+  if (kind !== "artnet" && kind !== "enttec" && kind !== "preview") throw new Error(`Unknown output "${kind}"; choose artnet, enttec or preview`);
+  const usbUniverse = num(file.usbUniverse) ?? 0;
+  if (!Number.isInteger(usbUniverse) || usbUniverse < 0 || usbUniverse > 32767) throw new Error("usbUniverse must be a whole number from 0 to 32767");
 
   let rig = file.rig;
   // --gateway host[:port] repoints the default rig — at the simulated gateway, typically.
@@ -96,32 +117,55 @@ export function loadConfig(): Config {
     rig = { ...rig, host: host!, port: num(port) ?? ARTNET_PORT };
   }
 
-  const patch = file.patch ?? (rig ? simplePatch(rig) : null);
+  let pixelsPerFixture = rig?.pixelsPerFixture ?? 32;
+  let patch = file.patch ?? (rig ? simplePatch(rig) : null);
+  if (file.rigFile) {
+    const doc = parseRig(fs.readFileSync(path.resolve(path.dirname(configPath), file.rigFile), "utf8"));
+    const problems = rigProblems(doc);
+    if (problems.length) throw new Error(`Editor rig is invalid: ${problems.join("; ")}`);
+    patch = compileRigPatch(doc);
+    pixelsPerFixture = doc.profiles[0]?.pixels ?? pixelsPerFixture;
+  }
   if (patch) {
     const problems = validatePatch(patch);
     if (problems.length) throw new Error(`config patch is invalid: ${problems.join("; ")}`);
+    if (kind === "enttec" || (kind === "preview" && file.output === "enttec")) {
+      const usbProblems = enttecPatchProblems(patch, usbUniverse);
+      if (usbProblems.length) throw new Error(usbProblems.join("; "));
+    }
+  }
+
+  const outputFps = num(file.outputFps) ?? 40;
+  if (!Number.isInteger(outputFps) || outputFps < 1 || outputFps > (kind === "enttec" ? 40 : 120)) {
+    throw new Error(`outputFps must be a whole number from 1 to ${kind === "enttec" ? 40 : 120}`);
   }
 
   return {
+    output: kind,
+    usbDevice: flag("usb-device") ?? process.env.LBE_LIGHTING_USB_DEVICE ?? file.usbDevice,
+    usbUniverse,
+    previewUsbUniverse: file.output === "enttec" ? usbUniverse : undefined,
+    standalone: process.argv.includes("--standalone"),
+    localPath,
     name: flag("name") ?? process.env.LBE_LIGHTING_NAME ?? file.name ?? os.hostname().replace(/\.local$/, ""),
     server: flag("server") ?? process.env.LBE_SERVER ?? file.server,
     controlPort: num(flag("port"), process.env.LBE_LIGHTING_PORT, file.controlPort) ?? DEFAULT_CONTROL_PORT,
     showsDir: path.resolve(ROOT, flag("shows") ?? process.env.LBE_LIGHTING_SHOWS_DIR ?? file.showsDir ?? "shows"),
-    outputFps: Math.min(120, Math.max(1, num(file.outputFps) ?? 40)),
+    outputFps,
     outputLatencyMs: num(file.outputLatencyMs) ?? 0,
     master: clamp01(num(file.master) ?? 1),
     cap: clamp01(num(file.cap) ?? 1),
     sequenced: file.sequenced ?? false,
     sourcePort: num(flag("source-port"), process.env.LBE_LIGHTING_SOURCE_PORT) ?? ARTNET_PORT,
     patch,
-    pixelsPerFixture: rig?.pixelsPerFixture ?? 32,
+    pixelsPerFixture,
   };
 }
 
 /** Persist an on-site override (the master dimmer) without touching the tracked config.json. */
-export function saveLocal(overrides: Pick<ConfigFile, "master">) {
-  const next = { ...readJson(LOCAL_PATH), ...overrides };
-  fs.writeFileSync(LOCAL_PATH, `${JSON.stringify(next, null, 2)}\n`);
+export function saveLocal(overrides: Pick<ConfigFile, "master">, localPath = LOCAL_PATH) {
+  const next = { ...readJson(localPath), ...overrides };
+  fs.writeFileSync(localPath, `${JSON.stringify(next, null, 2)}\n`);
 }
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));

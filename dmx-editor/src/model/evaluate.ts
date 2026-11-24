@@ -15,7 +15,7 @@
 
 import { pixelMap, worldMatrices } from "./pixels";
 import type { RigDocument } from "./rig";
-import { activeSurfaces, type SequenceDocument } from "./sequence";
+import { activeSurfaces, type SequenceDocument, type UnisonLighting } from "./sequence";
 import { nearestLocal, projectLocal, wrapsU } from "./surfaces";
 import { invert, transformPoint, type Vec3 } from "./transform";
 
@@ -43,6 +43,7 @@ export interface SamplePlan {
   pixelCount: number;
   level: number;
   surfaces: SurfacePlan[];
+  unison?: UnisonLighting;
 }
 
 export function buildPlan(rig: RigDocument, seq: SequenceDocument): SamplePlan {
@@ -67,6 +68,11 @@ export function buildPlan(rig: RigDocument, seq: SequenceDocument): SamplePlan {
           s.uvs.push(uv[0], uv[1]);
         }
       }
+    }
+  } else if (seq.sampling === "unison") {
+    // Every pixel participates, even where no screen projects into the room.
+    for (const s of surfaces) {
+      for (let i = 0; i < n; i++) { s.pixels.push(i); s.uvs.push(0.5, 0.5); }
     }
   } else {
     // Nearest: distance is measured in the room (world metres), not in each surface's own scale.
@@ -95,6 +101,7 @@ export function buildPlan(rig: RigDocument, seq: SequenceDocument): SamplePlan {
   return {
     pixelCount: n,
     level: seq.level,
+    unison: seq.sampling === "unison" ? seq.unison : undefined,
     surfaces: surfaces.map((s) => ({
       surface: s.node.id,
       video: s.video,
@@ -121,8 +128,19 @@ const SRGB_TO_LINEAR = (() => {
  * it has none (not loaded, or past its end) — that surface is then dark. Returns `out`, R G B per
  * pixel in linear light, clamped to 0–1.
  */
-export function evaluateFrame(plan: SamplePlan, pictureOf: (video: string) => Picture | null, out: Float32Array = new Float32Array(plan.pixelCount * 3)): Float32Array {
+export function evaluateFrame(plan: SamplePlan, pictureOf: (video: string) => Picture | null, out: Float32Array = new Float32Array(plan.pixelCount * 3), timeMs = 0): Float32Array {
   out.fill(0);
+  if (plan.unison) {
+    const track = plan.unison;
+    const sample = timeMs * track.fps / 1000;
+    if (sample < 0 || sample >= track.intensities.length || !pictureOf(track.video)) return out;
+    const index = Math.floor(sample), fraction = sample - index;
+    const a = track.intensities[index]!, b = track.intensities[Math.min(index + 1, track.intensities.length - 1)]!;
+    const intensity = (a + (b - a) * fraction) * plan.level;
+    const rgb = track.color.map((byte) => Math.min(1, SRGB_TO_LINEAR[byte]! * intensity));
+    for (let pixel = 0; pixel < plan.pixelCount; pixel++) out.set(rgb, pixel * 3);
+    return out;
+  }
   for (const s of plan.surfaces) {
     const pic = pictureOf(s.video);
     if (!pic) continue;

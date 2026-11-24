@@ -12,7 +12,5 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true
   },
-  // ../bun-server/src/protocol.ts is deliberately in here: the LBE wire types are imported from
-  // there (type-only, so nothing survives to runtime) rather than copied. See src/protocol.ts.
-  "include": ["src", "test", "../bun-server/src/protocol.ts"]
+  "include": ["src", "test"]
 }

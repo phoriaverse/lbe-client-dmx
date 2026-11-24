@@ -7,3 +7,7 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Local source media; the project records the file names.
+media/*
+!media/README.md

@@ -6,6 +6,7 @@
 // browser and in the Bun bake because nothing here touches three.js.
 
 import { encodeSample, type SampleBits, SHOW_TRANSFER } from "../../../dmx-client/src/shared/show-file";
+import { driveToLinear, linearToDrive } from "../../../dmx-client/src/shared/brightness";
 import { rigOrder } from "./patch";
 import { nodeById, profileById, type RigDocument, type RigNode } from "./rig";
 import { compose, identity, type Mat4, multiply, transformPoint, type Vec3 } from "./transform";
@@ -60,6 +61,26 @@ export function pixelMap(rig: RigDocument): PixelMap {
 
 /** A dark frame: linear light, R G B per pixel. The scene is dark by default. */
 export const darkFrame = (pixelCount: number) => new Float32Array(pixelCount * 3);
+
+/** Estimate the light after the same sample encoding, levels, gains and DMX quantisation as live output. */
+export function estimateFixtureFrame(rig: RigDocument, frame: Float32Array, level = 1): Float32Array {
+  const out = new Float32Array(frame.length);
+  for (const span of rigOrder(rig)) {
+    if (!span.chain) continue;
+    const profile = profileById(rig, span.light.light!.profile)!;
+    const gain = profile.gain ?? [1, 1, 1];
+    for (let p = span.first; p < span.first + span.count; p++) {
+      for (let c = 0; c < 3; c++) {
+        const i = p * 3 + c;
+        if (i >= frame.length) continue;
+        const sample = encodeSample(frame[i]!, 8);
+        const light = Math.pow(sample / 255, SHOW_TRANSFER) * Math.max(0, level) * Math.max(0, gain[c]!);
+        out[i] = driveToLinear(linearToDrive(light, profile.gamma) / 255, profile.gamma);
+      }
+    }
+  }
+  return out;
+}
 
 /**
  * Identify: the chosen lights at a dim white, with pixel 0 (the data-in end) red so a tube placed

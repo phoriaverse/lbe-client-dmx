@@ -55,6 +55,7 @@ export interface PreviewStatus {
   problem: string | null;
   master: number;
   cap: number;
+  output?: { kind: "artnet" | "enttec" | "preview"; label: string; connected: boolean; error: string | null };
 }
 
 export interface PreviewPollResult {

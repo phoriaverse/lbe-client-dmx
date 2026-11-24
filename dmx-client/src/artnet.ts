@@ -15,7 +15,7 @@
 
 import dgram from "node:dgram";
 import os from "node:os";
-import { ARTNET_PORT, DMX_UNIVERSE_SIZE } from "./shared/patch";
+import { ARTNET_PORT, DMX_UNIVERSE_SIZE, type Patch } from "./shared/patch";
 
 const ARTNET_ID = [0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00]; // "Art-Net\0"
 export const OP_POLL = 0x2000;
@@ -174,6 +174,13 @@ export function broadcastAddresses(): string[] {
 }
 
 export class ArtNetSocket {
+  readonly kind = "artnet" as const;
+  readonly label = "Art-Net";
+  connected = true;
+  get error(): string | null { return this.lastSendError || null; }
+  validatePatch(patch: Patch): string[] {
+    return patch.gateways.some((g) => g.host === "enttec-usb") ? ["This is a USB fixture patch; select --output enttec or preview"] : [];
+  }
   private readonly nodes = new Map<string, ArtNode>();
   private sendFailures = 0;
   private lastSendError = "";
@@ -227,6 +234,13 @@ export class ArtNetSocket {
     this.send(packet.bytes, host, port);
   }
 
+  sendUniverse(host: string, port: number, universe: number, data: Uint8Array, sequence = 0) {
+    const packet = createDmxPacket(universe);
+    packet.data.set(data);
+    setSequence(packet, sequence);
+    this.sendDmx(host, port, packet);
+  }
+
   private send(bytes: Uint8Array, host: string, port: number, quiet = false) {
     this.packetsSent += 1;
     this.udp.send(bytes, port, host, (err) => {
@@ -264,6 +278,7 @@ export class ArtNetSocket {
   }
 
   close() {
+    this.connected = false;
     try {
       this.udp.close();
     } catch {
