@@ -176,6 +176,7 @@ export function broadcastAddresses(): string[] {
 export class ArtNetSocket {
   private readonly nodes = new Map<string, ArtNode>();
   private sendFailures = 0;
+  onError?: (context: string, error: Error) => void;
   private lastSendError = "";
   packetsSent = 0;
 
@@ -187,7 +188,10 @@ export class ArtNetSocket {
       const node = parsePollReply(buf, rinfo.address);
       if (node) this.nodes.set(node.from, node);
     });
-    udp.on("error", (err) => console.warn(`[artnet] socket error: ${err.message}`));
+    udp.on("error", (err) => {
+      this.onError?.("Art-Net socket port=" + this.sourcePort, err);
+      console.warn(`[artnet] socket error: ${err.message}`);
+    });
   }
 
   /**
@@ -237,6 +241,7 @@ export class ArtNetSocket {
       // would otherwise bury the log that says why.
       if (err.message !== this.lastSendError) {
         this.lastSendError = err.message;
+        this.onError?.("Art-Net send " + host + ":" + port, err);
         console.warn(`[artnet] send to ${host}:${port} failed: ${err.message}`);
       }
     });

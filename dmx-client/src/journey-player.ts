@@ -41,7 +41,11 @@ export class JourneyPlayer {
       this.prepared = true;
       this.report();
     } catch (error) {
-      if (!controller.signal.aborted) console.error("[journey] preparation failed", visit.state, error);
+      if (!controller.signal.aborted) {
+        const detail = error instanceof Error ? error.stack || error.message : String(error);
+        this.send({ type: "health", health: "ERROR", message: "Preparation failed " + JSON.stringify(visit) + "\n" + detail });
+        console.error("[journey] preparation failed", visit.state, error);
+      }
     }
   }
   report() {
@@ -52,10 +56,15 @@ export class JourneyPlayer {
     if (this.visit?.visitId !== visitId || this.started) return;
     this.started = true;
     const controller = this.controller;
-    this.play?.(startAt, () => {
-      if (controller?.signal.aborted) return;
-      this.ready = true;
-      this.report();
-    });
+    try {
+      this.play?.(startAt, () => {
+        if (controller?.signal.aborted) return;
+        this.ready = true;
+        this.report();
+      });
+    } catch (error) {
+      const detail = error instanceof Error ? error.stack || error.message : String(error);
+      this.send({ type: "health", health: "ERROR", message: "Start failed " + JSON.stringify({ ...this.visit, startAt }) + "\n" + detail });
+    }
   }
 }

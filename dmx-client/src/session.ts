@@ -23,6 +23,8 @@ const FAST_PROBE_MS = 250;
 const SLOW_PROBE_MS = 2000;
 
 export interface SessionHandlers {
+  onSuperseded(): void;
+  onConnected?(): void;
   onStartExperience(experience: string, signal?: AbortSignal): number | undefined;
   onBeginPlayback(startAt: number): void;
   onCloseExperience(reason: CloseReason): void;
@@ -91,6 +93,9 @@ export class Session {
     this.send({ type: "ready" });
   }
 
+  reportError(context: string, error: unknown) {
+    this.send({ type: "health", health: "ERROR", message: context + ": " + (error instanceof Error ? error.stack || error.message : String(error)) });
+  }
   private send(msg: OutboundMessage) {
     if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(JSON.stringify(msg));
   }
@@ -117,7 +122,9 @@ export class Session {
       // A new connection may be a restarted server, whose clock has a new zero.
       this.clock.reset();
       this.send({ type: "identify", role: "player", name: this.name, clientType: CLIENT_TYPE });
+      this.send({ type: "health", health: "OK" });
       this.send({ type: "state", state: this.state });
+      this.handlers.onConnected?.();
       this.probes = 0;
       this.probe();
       this.diagnosticsTimer = setInterval(() => {
@@ -168,12 +175,13 @@ export class Session {
       if (this.connected) console.warn(`[session] disconnected from ${url}${ev.reason ? ` (${ev.reason})` : ""}`);
       this.connected = false;
 
-      // We lost a duplicate-connection race: a newer lighting-client of this name is in the room.
+      // We lost a duplicate-connection race: a newer lighting-client is in the room.
       // Reconnecting would evict it, it would evict us, and the two would flap forever.
       if (ev.code === CLOSE_SUPERSEDED) {
         this.journey.exit();
         this.superseded = true;
-        console.error("[session] superseded by another lighting-client with this name — not reconnecting");
+        this.handlers.onSuperseded();
+        console.error("[session] superseded by another lighting-client — not reconnecting");
       }
       // Note what is NOT here: nothing stops playback. A dropped socket mid-show keeps the lights
       // running on the last good clock, and the reconnect picks up the close.

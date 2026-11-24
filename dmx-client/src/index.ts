@@ -11,6 +11,7 @@
 // Flags: --server host:port · --name "Roster name" · --port <control port> · --shows <dir>
 //        --gateway host[:port] · --source-port <udp port>
 
+import { constants, openSync } from "node:fs";
 import { ArtNetSocket } from "./artnet";
 import { ServerClock } from "./clock";
 import { loadConfig } from "./config";
@@ -21,6 +22,20 @@ import { Output } from "./output";
 import { Session } from "./session";
 import { ARTNET_PORT } from "./shared/patch";
 import { ShowLibrary } from "./shows";
+
+// Darwin acquires O_EXLOCK atomically at open and releases it on process exit, including crashes.
+// Keep the descriptor open and the inode in place so concurrent launches always lock the same file.
+if (process.platform === "darwin") {
+  const O_EXLOCK = 0x20;
+  try {
+    openSync("/tmp/com.phoria.lbe.lighting-client.lock", constants.O_RDONLY | constants.O_CREAT |
+      constants.O_NOFOLLOW | constants.O_NONBLOCK | O_EXLOCK, 0o444);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "EAGAIN") throw error;
+    console.error("Another lighting-client is already running on this Mac.");
+    process.exit(1);
+  }
+}
 
 const config = loadConfig();
 
@@ -44,11 +59,14 @@ const clock = new ServerClock();
 const library = new ShowLibrary(config.showsDir);
 const engine = new Engine(config, output, clock, library);
 const session = new Session(new Discovery(config.server), clock, config.name, {
+  onSuperseded: () => engine.pauseOutput(),
+  onConnected: () => engine.reportLibraryProblems(),
   onStartExperience: (experience, signal) => engine.onStartExperience(experience, signal),
   onBeginPlayback: (startAt) => engine.onBeginPlayback(startAt),
   onCloseExperience: (reason) => engine.onCloseExperience(reason),
   positionMs: () => engine.positionMs(),
 });
+socket.onError = (context, error) => session.reportError(context, error);
 engine.attach(session);
 
 engine.start();
@@ -65,7 +83,7 @@ let exiting = false;
 async function shutdown(code: number) {
   if (exiting) return;
   exiting = true;
-  await engine.stop().catch(() => {});
+  if (!session.status.superseded) await engine.stop().catch(() => {});
   socket.close();
   process.exit(code);
 }
@@ -73,9 +91,11 @@ process.on("SIGINT", () => void shutdown(0));
 process.on("SIGTERM", () => void shutdown(0));
 process.on("SIGHUP", () => void shutdown(0));
 process.on("uncaughtException", (err) => {
+  session.reportError("uncaughtException", err);
   console.error(`[lighting] fatal: ${err.stack ?? err}`);
   void shutdown(1);
 });
 process.on("unhandledRejection", (err) => {
+  session.reportError("unhandledRejection", err);
   console.error(`[lighting] unhandled rejection: ${err instanceof Error ? err.stack : err}`);
 });

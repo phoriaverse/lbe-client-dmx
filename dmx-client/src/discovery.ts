@@ -1,6 +1,6 @@
 // Finding the control server without anyone typing an IP.
 //
-// The server broadcasts `{service:"soundspace-popup", wsPort, ips}` to 255.255.255.255:41235 every 2s
+// The server broadcasts `{service:"soundspace", wsPort, ips}` to 255.255.255.255:41235 every 2s
 // (bun-server/src/discovery.ts). We listen and take `ips[0]` — the same field, in the same order,
 // the headsets and screens use, so every client dials the same address.
 //
@@ -12,7 +12,7 @@ import dgram from "node:dgram";
 import os from "node:os";
 
 const DISCOVERY_PORT = Number(process.env.LBE_DISCOVERY_PORT ?? 41235);
-const SERVICE_ID = process.env.LBE_DISCOVERY_SERVICE ?? "soundspace-popup"; // a wire constant the fielded headsets match on; not a directory name
+const SERVICE_ID = process.env.LBE_DISCOVERY_SERVICE ?? "soundspace"; // a wire constant the fielded headsets match on; not a directory name
 const BEACON_TTL_MS = 8000; // three missed beacons and we stop claiming to know where it is
 
 export interface ServerAddress {

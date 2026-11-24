@@ -125,8 +125,8 @@ export class Engine {
         const h = show.show.header;
         console.log(`[engine] "${experience}" → ${entry.file} (${h.frameCount} frames @ ${h.fps}fps ${h.bits}-bit, ${(durationMsOf(h) / 1000).toFixed(1)}s)`);
       } catch (err) {
+        this.session?.reportError("Load lighting show " + experience + " file=" + entry.file, err);
         console.error(`[engine] could not load ${entry.file}: ${err instanceof Error ? err.message : err} — holding the idle look`);
-        note = " (lighting show unreadable)";
       }
     }
 
@@ -274,6 +274,7 @@ export class Engine {
         this.tick(now);
       } catch (err) {
         // One bad frame must not stop the loop: a stopped loop leaves the last frame on the wall.
+        this.session?.reportError("Lighting tick experience=" + this.active?.experience, err);
         console.error(`[engine] tick failed: ${err instanceof Error ? err.stack : err}`);
       }
       due += period;
@@ -284,9 +285,13 @@ export class Engine {
     loop();
   }
 
-  async stop() {
+  pauseOutput() {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
+  }
+
+  async stop() {
+    this.pauseOutput();
     await this.output.blackout();
   }
 
@@ -371,15 +376,23 @@ export class Engine {
     return { frame: frameView(bytes, show, index), transfer: h.transfer, patch: h.patch };
   }
 
+  reportLibraryProblems() {
+    for (const { file, problem } of this.library.problems)
+      this.session?.reportError("Scan lighting show file=" + file, problem);
+  }
+
   private rescan(force = false) {
     this.lastScanAt = performance.now();
-    if (!this.library.scan() && !force) return;
+    const changed = this.library.scan();
+    if (changed) this.reportLibraryProblems();
+    if (!changed && !force) return;
     const entry = this.library.ambient();
     try {
       // Keep the mapping we have if the file is unchanged — re-mapping every start would be waste.
       if (!entry) this.ambient = null;
       else if (this.ambient?.path !== entry.path || this.ambient.mtimeMs !== entry.mtimeMs) this.ambient = this.library.load(entry);
     } catch (err) {
+      this.session?.reportError("Load ambient show", err);
       console.error(`[engine] could not load the ambient show: ${err instanceof Error ? err.message : err}`);
       this.ambient = null;
     }
