@@ -10,3 +10,7 @@ config.*.local.json
 
 # What `bun run probe` measured on this rig.
 probe-markers.json
+
+/SoundSpace DMX.app/
+/.dmx-build.*/
+/.*.bun-build

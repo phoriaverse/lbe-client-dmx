@@ -72,8 +72,10 @@ export interface Config {
   pixelsPerFixture: number;
 }
 
-const ROOT = path.resolve(import.meta.dir, "..");
-const CONFIG_PATH = path.join(ROOT, "config.json");
+// Finder launches the helper with the folder containing the .app as its working directory.
+const resources = process.env.LBE_LIGHTING_RESOURCES;
+const ROOT = resources ? process.cwd() : path.resolve(import.meta.dir, "..");
+const CONFIG_PATH = resources ? path.join(resources, "config.pavotube.json") : path.join(ROOT, "config.json");
 const LOCAL_PATH = path.join(ROOT, "config.local.json");
 
 function readJson(file: string): ConfigFile {
@@ -101,7 +103,10 @@ const num = (...candidates: (string | number | undefined)[]): number | undefined
 
 export function loadConfig(): Config {
   const configPath = path.resolve(ROOT, flag("config") ?? process.env.LBE_LIGHTING_CONFIG ?? CONFIG_PATH);
-  const localPath = configPath.replace(/\.json$/, "") + ".local.json";
+  const localName = path.basename(configPath, ".json") + ".local.json";
+  const localPath = resources && configPath === CONFIG_PATH
+    ? path.join(os.homedir(), "Library", "Application Support", "SoundSpace DMX", localName)
+    : path.join(path.dirname(configPath), localName);
   if (!fs.existsSync(configPath)) throw new Error(`Configuration not found: ${configPath}`);
   const file = { ...readJson(configPath), ...readJson(localPath) };
   const kind = flag("output") ?? process.env.LBE_LIGHTING_OUTPUT ?? file.output ?? "artnet";
@@ -165,6 +170,7 @@ export function loadConfig(): Config {
 /** Persist an on-site override (the master dimmer) without touching the tracked config.json. */
 export function saveLocal(overrides: Pick<ConfigFile, "master">, localPath = LOCAL_PATH) {
   const next = { ...readJson(localPath), ...overrides };
+  fs.mkdirSync(path.dirname(localPath), { recursive: true });
   fs.writeFileSync(localPath, `${JSON.stringify(next, null, 2)}\n`);
 }
 

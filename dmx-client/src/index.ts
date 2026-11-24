@@ -96,6 +96,11 @@ async function shutdown(code: number) {
   catch (err) { console.error(`[lighting] output close failed: ${err}`); code = 1; }
   process.exit(code);
 }
+// A forced quit skips the Cocoa quit callback. Release USB and black out on parent loss too.
+const launcherPid = Number(process.env.LBE_LAUNCHER_PID);
+if (launcherPid) setInterval(() => {
+  if (process.ppid !== launcherPid) void shutdown(0);
+}, 500).unref();
 process.on("SIGINT", () => void shutdown(0));
 process.on("SIGTERM", () => void shutdown(0));
 process.on("SIGHUP", () => void shutdown(0));

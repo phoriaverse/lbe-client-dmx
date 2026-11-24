@@ -22,7 +22,7 @@ import { PREVIEW_PATH, type PreviewMessage, type PreviewReply, type PreviewStatu
 import { durationMsOf } from "./shared/show-file";
 import type { ShowLibrary } from "./shows";
 
-const PAGE = path.join(import.meta.dir, "web", "index.html");
+const webDir = path.join(process.env.LBE_LIGHTING_RESOURCES ?? import.meta.dir, "web");
 
 interface Deps {
   config: Config;
@@ -132,8 +132,8 @@ export function startControlServer({ config, engine, output, socket, session, li
       }
 
       if (req.method === "GET") {
-        if (url.pathname === "/") return new Response(Bun.file(PAGE), { headers: { "cache-control": "no-store" } });
-        if (url.pathname === "/icon.png") return new Response(Bun.file(path.join(import.meta.dir, "web", "icon.png")));
+        if (url.pathname === "/") return new Response(Bun.file(path.join(webDir, "index.html")), { headers: { "cache-control": "no-store" } });
+        if (url.pathname === "/icon.png") return new Response(Bun.file(path.join(webDir, "icon.png")));
         if (url.pathname === "/api/status") return json(status());
         // What is on the wire right now: drive levels, R G B per pixel, frame order.
         if (url.pathname === "/api/frame") {

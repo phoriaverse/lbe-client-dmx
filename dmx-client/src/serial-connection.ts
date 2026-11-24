@@ -1,9 +1,9 @@
 import { execFile, spawn } from "node:child_process";
 import { createInterface } from "node:readline";
-import { fileURLToPath } from "node:url";
+import path from "node:path";
 import type { UsbConnection } from "./enttec";
 
-const worker = fileURLToPath(new URL("./serial-worker.mjs", import.meta.url));
+const worker = path.join(process.env.LBE_LIGHTING_RESOURCES ?? import.meta.dir, "serial-worker.mjs");
 
 export interface UsbDevice {
   path: string;

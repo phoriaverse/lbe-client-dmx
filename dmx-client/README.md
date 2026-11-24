@@ -18,7 +18,7 @@ Put baked `.show` files in [media/](media/). On each visit the client matches th
 
 The client primes a matching cue, renders against the shared start instant and votes ready at the end of the timeline. To assign an existing bake, copy it under the desired filename. The embedded experience records the original authoring name.
 
-Phill’s 26.4-second PavoTube cue is deployed locally as `media/introduction.show`. Run `bun run start:pavotube` for this rig. Copy the media directory separately when moving to another Mac. SoundSpace discovery uses UDP 41235 and service `soundspace`. [Journey and operator controls](../../../server/web/JOURNEY.md)
+Phill’s 26.4-second PavoTube cue is deployed locally as `media/introduction.show`. Open `SoundSpace DMX.app` for this rig, or run `bun run start:pavotube` from a terminal. Copy the media directory separately when moving to another Mac. SoundSpace discovery uses UDP 41235 and service `soundspace`. [Journey and operator controls](../../../server/web/JOURNEY.md)
 
 The single-experience session described below is supported in legacy rehearsal mode.
 
@@ -33,7 +33,15 @@ For the **eight PavoTube II 30XR tubes → TimoLink TX → ENTTEC USB Pro Mk2** 
 [PAVOTUBE_SETUP.md](../PAVOTUBE_SETUP.md). It includes the correct preset and USB commands.
 The original `bun run start` defaults and CL-104PS network instructions below still select Art-Net.
 
-## Run it
+## macOS app
+
+Run `bun install` and `bun run build` on a Mac with Xcode Command Line Tools. Double-click **SoundSpace DMX.app** to open its lighting controls and join the session. It uses the PavoTube preset by default. USB output requires Node.js on the Mac. Quitting the app stops playback and releases the adapter.
+
+Keep the `media` folder beside the app, or set `LBE_LIGHTING_MEDIA_DIR` to use another location. You can add, rename or replace a show between visits. When moving the player, copy the app and the media folder together.
+
+The app uses a sibling `config.pavotube.json` if present and otherwise uses its bundled PavoTube rig. With the bundled preset, the master dimmer setting is saved in `~/Library/Application Support/SoundSpace DMX/config.pavotube.local.json`.
+
+## Run from a terminal
 
 ```bash
 cd dmx-client

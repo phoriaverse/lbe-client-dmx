@@ -5,6 +5,7 @@
   "type": "module",
   "description": "LBE lighting client — plays baked .show files through Art-Net or ENTTEC USB, clock-synced to the control server.",
   "scripts": {
+    "build": "bash macos/build.sh",
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "sim": "bun src/tools/sim-gateway.ts",
