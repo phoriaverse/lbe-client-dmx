@@ -1,5 +1,8 @@
 # dmx-editor
 
+The DMX client resolves a baked show by its network state name. Use the exact track title or a journey state such as Seating when authoring a cue. The client logs an unassigned state and votes ready. [Playback and journey behavior](../dmx-client/README.md)
+
+
 The LBE's lighting authoring tool. **Milestone 2: the rig editor.** You place the fixtures in a 3D
 model of the room, wire them into chains, and press Identify to check each tube on the wall.
 **Milestone 3: video surfaces and the bake.** You place video surfaces among the lights, a sequence

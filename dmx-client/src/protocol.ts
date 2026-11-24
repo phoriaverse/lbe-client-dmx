@@ -3,15 +3,16 @@
 // lighting-client still starts on a show Mac with bun-server/ absent. A protocol change breaks this
 // project's typecheck, which is the point.
 
-import type { ClientMessage, ClientType } from "../../bun-server/src/protocol";
+import type { ClientMessage, ClientType } from "../../../../server/web/src/protocol";
 
 export type {
+  JourneyVisit,
   ClientDiagnostics,
   ClientMessage,
   CloseReason,
   CloseSupersededCode,
   ServerMessage,
-} from "../../bun-server/src/protocol";
+} from "../../../../server/web/src/protocol";
 
 // What we declare ourselves as. "lighting-client" is in the server's SINGLE_INSTANCE_TYPES, so a
 // reconnect evicts its own half-open ghost (which would otherwise hold the Ready barrier) and the

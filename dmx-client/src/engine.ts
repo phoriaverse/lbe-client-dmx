@@ -104,7 +104,7 @@ export class Engine {
 
   // ── LBE session ────────────────────────────────────────────────────────────
 
-  onStartExperience(experience: string) {
+  onStartExperience(experience: string, signal?: AbortSignal) {
     this.rescan(true);
     this.pattern = null; // a live show always wins
     this.active = { experience, phase: "preparing", show: null, startAt: null };
@@ -132,8 +132,9 @@ export class Engine {
 
     this.active.phase = "ready";
     this.session?.setState(`${experience} - Ready${note}`);
-    this.session?.sendReady();
+    if (!signal) this.session?.sendReady();
     this.changed();
+    return this.active.show ? durationMsOf(this.active.show.show.header) : undefined;
   }
 
   onBeginPlayback(startAt: number) {

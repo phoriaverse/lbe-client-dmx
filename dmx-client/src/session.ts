@@ -1,3 +1,4 @@
+import { JourneyPlayer } from "./journey-player";
 // The LBE side: one WebSocket to the control server, as a full session participant.
 //
 // We identify as role "player" — the role a screen has — because a lighting rig wants the identical
@@ -22,7 +23,7 @@ const FAST_PROBE_MS = 250;
 const SLOW_PROBE_MS = 2000;
 
 export interface SessionHandlers {
-  onStartExperience(experience: string): void;
+  onStartExperience(experience: string, signal?: AbortSignal): number | undefined;
   onBeginPlayback(startAt: number): void;
   onCloseExperience(reason: CloseReason): void;
   /** Where playback is, in ms from the shared start, or undefined when not playing. */
@@ -45,6 +46,18 @@ export class Session {
     private readonly name: string,
     private readonly handlers: SessionHandlers,
   ) {}
+
+  private journey = new JourneyPlayer(m => this.send(m), () => this.clock.synced, async (visit, signal) => {
+    this.setState(visit.state);
+    signal.addEventListener("abort", () => this.handlers.onCloseExperience("operator"), {once:true});
+    const duration = await this.handlers.onStartExperience(visit.state, signal);
+    if (!duration || signal.aborted) return;
+    return (startAt, complete) => {
+      this.handlers.onBeginPlayback(startAt);
+      const timer = setTimeout(complete, Math.max(0, startAt + duration - this.clock.now()));
+      signal.addEventListener("abort", () => clearTimeout(timer), {once:true});
+    };
+  });
 
   start() {
     this.discovery.start();
@@ -120,8 +133,13 @@ export class Session {
         return;
       }
       switch (msg.type) {
+        case "journeyVisit": void this.journey.enter(msg); break;
+        case "journeyExit": this.journey.exit(); break;
+        case "journeyStart": this.journey.start(msg.visitId, msg.startAt); break;
         case "timeSyncReply":
+          const first = !this.clock.synced;
           this.clock.record(msg.t0, msg.tServer);
+          if (first) this.journey.report();
           break;
         case "startExperience":
           this.handlers.onStartExperience(msg.experience);
@@ -153,6 +171,7 @@ export class Session {
       // We lost a duplicate-connection race: a newer lighting-client of this name is in the room.
       // Reconnecting would evict it, it would evict us, and the two would flap forever.
       if (ev.code === CLOSE_SUPERSEDED) {
+        this.journey.exit();
         this.superseded = true;
         console.error("[session] superseded by another lighting-client with this name — not reconnecting");
       }

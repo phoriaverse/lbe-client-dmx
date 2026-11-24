@@ -1,5 +1,11 @@
 # dmx-client
 
+## Audience journey
+
+Each server visit is logged under its own state name. The rig looks up that state's local show, primes it and renders against the shared start instant. It votes ready at the end of the timeline. An unassigned cue logs and votes ready immediately. Seating, Onboarding and Doffing can each receive a distinct lighting sequence as designs become available. SoundSpace discovery defaults to UDP 41235 and service `soundspace-popup`. [Journey and operator controls](../../../server/web/JOURNEY.md)
+
+The single-experience session described below is supported in legacy rehearsal mode.
+
 The LBE's lighting player. It plays baked `.show` files to Art-Net pixel fixtures, starting on the
 same clock-synced instant as the headsets and screens.
 
