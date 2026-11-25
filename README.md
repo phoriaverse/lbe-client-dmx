@@ -18,3 +18,7 @@ For the general tools, see the [client README](dmx-client/README.md) and
 and baking needs FFmpeg/FFprobe. Each app provides `bun test` and `bun run typecheck`.
 The client's normal tests use local UDP sockets; the real-USB test is opt-in and requires
 exclusive access to the adapter.
+
+The full Introduction now uses the [build-13 eight-tube score](scores/onboarding-v1/VENUE-INTEGRATION.md).
+It previews independently of the black screen video and retains the approved 5.1 timing.
+The short Lissajous rehearsal remains a separate preset.

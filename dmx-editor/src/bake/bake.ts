@@ -18,6 +18,7 @@ import { encodeFrame } from "../model/pixels";
 import { type RigDocument, serializeRig } from "../model/rig";
 import { frameCountOf, sampleDims, type SequenceDocument, serializeSequence, videosInUse } from "../model/sequence";
 import { type Decoder, ffmpegDecoder, probeVideo, resolveMedia, type VideoInfo } from "./media";
+import { recordedShow } from "../model/recorded";
 
 export const DEFAULT_SHOWS_DIR = path.resolve(import.meta.dir, "../../../dmx-client/shows");
 
@@ -65,8 +66,8 @@ export async function bake(opts: BakeOptions): Promise<BakeResult> {
   if (!patch.runs.length) warnings.push("no light is on a chain, so this show would light nothing");
 
   // ── The videos ─────────────────────────────────────────────────────────────
-  const videos = videosInUse(rig, seq);
-  if (!videos.length) warnings.push("no surface has a video, so this show is dark");
+  const videos = seq.sampling === "recorded" ? [] : videosInUse(rig, seq);
+  if (!videos.length && seq.sampling !== "recorded") warnings.push("no surface has a video, so this show is dark");
   const infos = new Map<string, VideoInfo & { file: string }>();
   for (const video of videos) {
     const file = resolve(video);
@@ -96,6 +97,7 @@ export async function bake(opts: BakeOptions): Promise<BakeResult> {
     bits: seq.bits,
     pixelCount: patch.pixelCount,
     frameCount,
+    loop: seq.sampling === "recorded" && seq.recorded ? recordedShow(seq.recorded).show.header.loop : undefined,
     transfer: SHOW_TRANSFER,
     patch,
     bakedAt: new Date().toISOString(),

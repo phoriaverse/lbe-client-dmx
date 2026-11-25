@@ -15,6 +15,9 @@ const argument = process.argv.indexOf("--quest");
 const quest = path.resolve(argument >= 0 ? process.argv[argument + 1]! : path.join(root, "../../lbe-client-quest"));
 const source = path.join(quest, "Assets/Project/Introduction");
 const project = path.join(root, "project/pavotube");
+const existing = path.join(project, "sequences/soundspace-introduction.json");
+if (fs.existsSync(existing) && parseSequence(fs.readFileSync(existing, "utf8")).sampling === "recorded")
+  throw new Error("The Introduction uses the reviewed eight-tube score. Bake it in the editor; this older unison generator would overwrite its choreography.");
 const media = path.join(root, "media");
 const ffmpeg = findTool("ffmpeg");
 if (!ffmpeg) throw new Error("ffmpeg is required to analyse the bundled audio and make the preview guide");

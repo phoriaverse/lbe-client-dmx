@@ -1,0 +1,69 @@
+{
+  "version": "1.0.0",
+  "fps": 40,
+  "pixelsPerTube": 16,
+  "seed": 13,
+  "master": 0.8,
+  "rainGain": 0.8,
+  "waveGain": 1,
+  "rainFallSeconds": 1.35,
+  "envelopes": {
+    "rain": "order-object25-09.json",
+    "cloud": "order-object23-09.json",
+    "kick": "order-kick31-09.json",
+    "summon": "order-manifest15-09.json",
+    "mix": "mix-rms.json",
+    "bass": "bass-rms.json",
+    "idle": "idle-rms.json"
+  },
+  "forms": [
+    "Breathing halo",
+    "Double helix",
+    "Orbital weave",
+    "Standing wave",
+    "Resonant knot",
+    "SoundSpace original"
+  ],
+  "segments": [
+    {
+      "id": "waiting",
+      "duration": 10,
+      "loop": true
+    },
+    {
+      "id": "intro",
+      "duration": 150,
+      "loop": false
+    },
+    {
+      "id": "rise",
+      "duration": 4.3,
+      "loop": false
+    },
+    {
+      "id": "reveal",
+      "duration": 17,
+      "loop": false
+    },
+    {
+      "id": "aurora",
+      "duration": 3,
+      "loop": false
+    },
+    {
+      "id": "return_delay",
+      "duration": 0.75,
+      "loop": false
+    },
+    {
+      "id": "bass",
+      "duration": 35.6,
+      "loop": false
+    },
+    {
+      "id": "idle",
+      "duration": 20,
+      "loop": true
+    }
+  ]
+}

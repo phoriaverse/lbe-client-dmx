@@ -1,0 +1,42 @@
+[
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Auditions/order-object25-09.json",
+    "sha256": "66d485e5486a42ffbc6dcea55a95bf133a8c23f1387c57699f5cb0177effbda7"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Auditions/order-object23-09.json",
+    "sha256": "cbb938843b5a2a9ad51bae4c3fb78939e411ab00bf2f0ab3f5c8e85ffc3bcef7"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Auditions/order-kick31-09.json",
+    "sha256": "64a3cc6f2306828b6a1b23e76dab2014b3cd639b19c1436911a5f08356f6ca42"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Auditions/order-manifest15-09.json",
+    "sha256": "cadc185af50dcd29d3a66d1aae8855d7a47e4592539c2275e4c579a7373b7051"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Auditions/order-audition.ogg",
+    "sha256": "71ba9b1b1ef29d4cd1ae582a594b93e6a87f2bbf42816fe8a9e78569d13959f8"
+  },
+  {
+    "path": "AppProject/Assets/Project/Listening Room/Audio/Bass Mosaic Intro with Reverb Tail.wav",
+    "sha256": "776b1317f2e15bdec59ea2a45c2e565b5829b29b7d193e65af06884c8cb46ceb"
+  },
+  {
+    "path": "AppProject/Assets/Project/Listening Room/Audio/Audio 2.0/IdleCurve/Womp1.wav",
+    "sha256": "8db6b0ea1aa2280b394a10434a4e7da75350f003fcc513ced9f8dc8c033df39a"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Auditions/order-waiting06.wav",
+    "sha256": "6dd4df3e0407afc7e64a7308f3a804502fa8d60995addd2f94575e02ff2f210f"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Presets10/PulseRibbonIdle.json",
+    "sha256": "0f9003af7ea45962b85df9ee75fbed87bcd2919ad65a8f5ac3e10544a0985b59"
+  },
+  {
+    "path": "AppProject/Assets/Resources/LbeMini/Environment/AuthoredFlight05.json",
+    "sha256": "8f424101ac094329ffcf69863b739a0051161322ff668f4d6b9461d53f900f0b"
+  }
+]

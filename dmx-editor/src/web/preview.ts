@@ -344,7 +344,7 @@ class Preview {
       if (this.playing || this.stale || !this.frame || this.frame.length !== plan.pixelCount * 3) {
         this.stale = false;
         changed = true;
-        if (plan.surfaces.length) {
+        if (plan.surfaces.length || plan.recorded) {
           const pictures = new Map<string, Picture | null>();
           for (const slot of this.slots.values()) pictures.set(slot.name, this.grab(slot));
           this.frame = evaluateFrame(plan, (v) => pictures.get(v) ?? null, this.frame?.length === plan.pixelCount * 3 ? this.frame : undefined, this.timeMs);

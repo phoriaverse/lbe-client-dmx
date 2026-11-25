@@ -144,10 +144,13 @@ export function SequencePanel() {
           { value: "projection", label: "Projection" },
           { value: "nearest", label: "Nearest surface" },
           ...(seq.unison ? [{ value: "unison", label: "Unison" }] : []),
+          ...(seq.recorded ? [{ value: "recorded", label: "Recorded score" }] : []),
         ]}
       />
       <Text size="xs" c="dimmed">
-        {seq.sampling === "unison"
+        {seq.sampling === "recorded"
+          ? seq.recorded?.description
+          : seq.sampling === "unison"
           ? "All tubes share one colour and intensity, following the analysed video/audio track. Position does not affect the lighting."
           : seq.sampling === "projection"
           ? "Each surface lights the pixels its projection covers; overlapping surfaces add, and uncovered pixels stay dark."

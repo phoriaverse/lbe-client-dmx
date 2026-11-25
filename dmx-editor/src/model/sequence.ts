@@ -12,6 +12,7 @@
 
 import type { SampleBits } from "../../../dmx-client/src/shared/show-file";
 import { isSurface, type RigDocument } from "./rig";
+import { recordedShow, type RecordedLighting } from "./recorded";
 
 export const SEQUENCE_FORMAT = "lbe-sequence";
 export const SEQUENCE_VERSION = 1;
@@ -23,7 +24,9 @@ export type Sampling =
   /** Every pixel takes the closest point of whichever surface is nearest to it. Nothing is dark. */
   | "nearest"
   /** A recorded colour/intensity track drives every pixel together, independent of position. */
-  | "unison";
+  | "unison"
+  /** An imported, per-pixel score; independent of screen content. */
+  | "recorded";
 
 export interface UnisonLighting {
   /** Playback video whose zero is also the start of this track. */
@@ -71,6 +74,7 @@ export interface SequenceDocument {
   surfaces: Record<string, SurfaceUse>;
   /** Optional analysed/authored track, evaluated by the same clock in preview and bake. */
   unison?: UnisonLighting;
+  recorded?: RecordedLighting;
 }
 
 export const DEFAULT_LEVEL = 0.35;
@@ -111,7 +115,16 @@ export function sequenceFileProblems(raw: unknown): string[] {
   if (raw.bits !== 8 && raw.bits !== 16) p.push(`bits is ${raw.bits} (8 or 16)`);
   if (raw.durationMs !== null && !(isNum(raw.durationMs) && raw.durationMs > 0)) p.push(`durationMs is ${raw.durationMs}`);
   if (!isNum(raw.level) || raw.level < 0) p.push(`level is ${raw.level}`);
-  if (raw.sampling !== "projection" && raw.sampling !== "nearest" && raw.sampling !== "unison") p.push(`sampling is ${JSON.stringify(raw.sampling)}`);
+  if (!["projection", "nearest", "unison", "recorded"].includes(String(raw.sampling))) p.push(`sampling is ${JSON.stringify(raw.sampling)}`);
+  if (raw.sampling === "recorded" || raw.recorded !== undefined) {
+    const r = raw.recorded;
+    if (!isObj(r) || typeof r.showBase64 !== "string" || typeof r.description !== "string" || !Array.isArray(r.fixtures) ||
+        !r.fixtures.length || r.fixtures.some(f => !isObj(f) || typeof f.id !== "string" || !Number.isInteger(f.count) || (f.count as number) < 1)) p.push("recorded score is malformed");
+    else {
+      if (new Set(r.fixtures.map(f => f.id)).size !== r.fixtures.length) p.push("recorded fixture IDs must be unique");
+      try { recordedShow(r as unknown as RecordedLighting); } catch (err) { p.push(`recorded score: ${err instanceof Error ? err.message : err}`); }
+    }
+  }
   if (raw.unison !== undefined) {
     const u = raw.unison;
     if (!isObj(u)) p.push("unison track is malformed");

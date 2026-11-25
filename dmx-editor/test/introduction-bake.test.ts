@@ -19,7 +19,7 @@ test("the full Introduction bakes for journey playback and preserves the indepen
   expect(createHash("sha256").update(rehearsal).digest("hex")).toBe(timing.rehearsal.sha256);
   expect(parseSequence(rehearsal.toString()).durationMs).toBe(26400);
   expect(sequence.experience).toBe("Introduction");
-  expect(sequence.durationMs).toBe(210660);
+  expect(sequence.durationMs).toBe(210650); // 8,426 complete 40 Hz frames beneath the 210.66 s video.
   expect(timing.phases.find((p: { name: string }) => p.name === "Bass Mosaic").time).toBe(174.3);
   const rig = parseRig(fs.readFileSync(path.join(project, "rig.json"), "utf8"));
   const picture: Picture = { width: 2, height: 2, stride: 3, data: new Uint8Array(12) };
@@ -38,11 +38,9 @@ test("the full Introduction bakes for journey playback and preserves the indepen
     expect(show.header.pixelCount).toBe(128);
     for (const frame of [0, 80, 1706, 3200, 6000, 6972, 8425]) {
       const actual = frameView(bytes, show, frame);
-      const expected = encodeFrame(evaluateFrame(plan, () => picture, undefined, frame * 25));
-      expect(actual).toEqual(expected);
-      for (let pixel = 1; pixel < 128; pixel++) expect(actual.slice(pixel * 3, pixel * 3 + 3)).toEqual(actual.slice(0, 3));
+      const expected = encodeFrame(evaluateFrame(plan, () => picture, undefined, frame * 25), sequence.bits);
+      expect(new Uint8Array(actual.buffer, actual.byteOffset, actual.byteLength)).toEqual(expected);
     }
-    expect(frameView(bytes, show, 0).every(v => v === 0)).toBe(true);
-    expect(frameView(bytes, show, 8425).every(v => v === 0)).toBe(true);
+    expect(evaluateFrame(plan, () => picture, undefined, 210650).every(v => v === 0)).toBe(true);
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });

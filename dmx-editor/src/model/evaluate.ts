@@ -18,6 +18,7 @@ import type { RigDocument } from "./rig";
 import { activeSurfaces, type SequenceDocument, type UnisonLighting } from "./sequence";
 import { nearestLocal, projectLocal, wrapsU } from "./surfaces";
 import { invert, transformPoint, type Vec3 } from "./transform";
+import { recordedFrame, type RecordedLighting } from "./recorded";
 
 /** One decoded picture: 8-bit sRGB-encoded, rows top to bottom, `stride` bytes per pixel (3 RGB or 4 RGBA). */
 export interface Picture {
@@ -44,6 +45,7 @@ export interface SamplePlan {
   level: number;
   surfaces: SurfacePlan[];
   unison?: UnisonLighting;
+  recorded?: { track: RecordedLighting; mapping: Int32Array };
 }
 
 export function buildPlan(rig: RigDocument, seq: SequenceDocument): SamplePlan {
@@ -98,7 +100,20 @@ export function buildPlan(rig: RigDocument, seq: SequenceDocument): SamplePlan {
     }
   }
 
+  let recorded: SamplePlan["recorded"];
+  if (seq.sampling === "recorded" && seq.recorded) {
+    const mapping = new Int32Array(n).fill(-1);
+    let first = 0;
+    for (const fixture of seq.recorded.fixtures) {
+      const span = map.spans.find(s => s.light.id === fixture.id);
+      if (span && span.count !== fixture.count) throw new Error(`Recorded score expects ${fixture.count} pixels in ${fixture.id}`);
+      if (span) for (let i = 0; i < span.count; i++) mapping[span.first + i] = first + i;
+      first += fixture.count;
+    }
+    recorded = { track: seq.recorded, mapping };
+  }
   return {
+    recorded,
     pixelCount: n,
     level: seq.level,
     unison: seq.sampling === "unison" ? seq.unison : undefined,
@@ -130,6 +145,7 @@ const SRGB_TO_LINEAR = (() => {
  */
 export function evaluateFrame(plan: SamplePlan, pictureOf: (video: string) => Picture | null, out: Float32Array = new Float32Array(plan.pixelCount * 3), timeMs = 0): Float32Array {
   out.fill(0);
+  if (plan.recorded) return recordedFrame(plan.recorded.track, plan.recorded.mapping, timeMs, plan.level, out);
   if (plan.unison) {
     const track = plan.unison;
     const sample = timeMs * track.fps / 1000;

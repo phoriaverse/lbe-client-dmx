@@ -1,0 +1,74 @@
+[
+  {
+    "time": 0,
+    "stage": "waiting",
+    "action": "enter",
+    "duration": 10.0
+  },
+  {
+    "time": 10.0,
+    "stage": "intro",
+    "action": "enter",
+    "duration": 150.0
+  },
+  {
+    "time": 49.94,
+    "stage": "intro",
+    "action": "lightning",
+    "side": "left"
+  },
+  {
+    "time": 50.839999999999996,
+    "stage": "intro",
+    "action": "lightning",
+    "side": "right"
+  },
+  {
+    "time": 51.739999999999995,
+    "stage": "intro",
+    "action": "lightning",
+    "side": "left"
+  },
+  {
+    "time": 52.64,
+    "stage": "intro",
+    "action": "lightning",
+    "side": "both"
+  },
+  {
+    "time": 160.0,
+    "stage": "rise",
+    "action": "enter",
+    "duration": 4.3
+  },
+  {
+    "time": 164.3,
+    "stage": "reveal",
+    "action": "enter",
+    "duration": 17.0
+  },
+  {
+    "time": 181.3,
+    "stage": "aurora",
+    "action": "enter",
+    "duration": 3.0
+  },
+  {
+    "time": 184.3,
+    "stage": "return_delay",
+    "action": "enter",
+    "duration": 0.75
+  },
+  {
+    "time": 185.05,
+    "stage": "bass",
+    "action": "enter",
+    "duration": 35.6
+  },
+  {
+    "time": 220.65,
+    "stage": "idle",
+    "action": "enter",
+    "duration": 20.0
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "source": "https://app.notion.com/p/42369192f39881dc8928c6d8aaecbc0e",
+  "sourceSha256": "dc535671016fed91ad68ad8abd7b8462bf80f8670ce63683436e8c489a362358",
+  "sourceBuild": 13,
+  "fps": 40,
+  "frameCount": 8426,
+  "durationMs": 210650,
+  "bassStartSeconds": 174.3,
+  "removedStandaloneDelaySeconds": 0.75,
+  "finalFrameHoldSeconds": 0.75,
+  "sourceTiming": "fixed 17 s reveal, matching the server-owned Unity Timeline",
+  "outputSha256": "33b2241aa3ba6fe8ea6cc63a95bcb454a65e7e3cd2f599b8972c472c72d12a64",
+  "loops": "ambient.show and vr-idle.show retained in source package; not mapped to venue journey states"
+}
