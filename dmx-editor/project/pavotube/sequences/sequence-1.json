@@ -1,0 +1,19 @@
+{
+  "format": "lbe-sequence",
+  "version": 1,
+  "id": "sequence-1",
+  "name": "Sequence 1",
+  "experience": "Sequence 1",
+  "fps": 40,
+  "bits": 8,
+  "durationMs": null,
+  "level": 0.35,
+  "sampling": "projection",
+  "sampleSize": 256,
+  "surfaces": {
+    "intro-screen": {
+      "video": "Intro_Lissajous_From18s_Square.mp4",
+      "gain": 1
+    }
+  }
+}
