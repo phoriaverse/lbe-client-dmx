@@ -1,0 +1,8 @@
+{
+  "source": "preview/tsom-context.mp4",
+  "sourceProvenance": "analysis/tsom-provenance.json",
+  "sampleFps": 10,
+  "sampleRegion": "Upper 28 of 54 rows, three horizontal sectors; seated subject and floor excluded",
+  "usage": "Only authored live NeuralNetwork windows. Colours follow the actual completed render, including silver and warm white.",
+  "limits": "Artistic estimate from an SDR scene reference, not a calibrated live renderer probe."
+}

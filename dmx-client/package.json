@@ -14,6 +14,7 @@
     "make-test-show": "bun src/tools/make-test-show.ts",
     "test": "bun test",
     "typecheck": "tsc --noEmit",
+    "scores:install": "bun ../scripts/full-show-release.ts",
     "usb:list": "bun src/tools/list-usb.ts",
     "start:pavotube": "bun src/index.ts --config config.pavotube.json",
     "preview:pavotube": "bun src/index.ts --config config.pavotube.json --output preview --standalone"

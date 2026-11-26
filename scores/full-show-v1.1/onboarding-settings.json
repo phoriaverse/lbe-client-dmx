@@ -1,0 +1,19 @@
+{
+  "version": "1.1.0",
+  "durationSeconds": 30,
+  "fps": 40,
+  "floorLinear": 0.04,
+  "peakLinear": 0.17,
+  "wavePeriodSeconds": 12,
+  "verticalTravel": 0.32,
+  "verticalSpread": 0.32,
+  "fadeInSeconds": 2.5,
+  "fadeOutSeconds": 3,
+  "sourceVideo": "Sound-Space-Onboarding-Captioned-30s-V01.mp4",
+  "sourceSha256": "0ad60ebb98bc13b1e894a45307e0820bc5984c730358d605c8612e0010ce4b5d",
+  "sourceSlack": "https://team-phoria.slack.com/archives/C0BHY7SBT63/p1795510546267199",
+  "sourceSlackFile": "F0CL115TAQ7",
+  "instructionVideoHasAudio": false,
+  "clientMaster": 1,
+  "clientCap": 0.5
+}

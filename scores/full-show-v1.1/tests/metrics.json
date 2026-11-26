@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "scores": [
+    {
+      "state": "The Shape of Memory",
+      "frames": 11131,
+      "peakDmx": 113,
+      "maximumFrameStep": 7,
+      "firstAndLastFrameBlack": true,
+      "sha256Verified": true
+    },
+    {
+      "state": "Sit Around the Fire",
+      "frames": 20242,
+      "peakDmx": 56,
+      "maximumFrameStep": 4,
+      "firstAndLastFrameBlack": true,
+      "sha256Verified": true
+    },
+    {
+      "state": "Second Nature",
+      "frames": 7800,
+      "peakDmx": 98,
+      "maximumFrameStep": 4,
+      "firstAndLastFrameBlack": true,
+      "sha256Verified": true
+    },
+    {
+      "state": "Onboarding",
+      "frames": 1200,
+      "peakDmx": 22,
+      "maximumFrameStep": 1,
+      "firstAndLastFrameBlack": true,
+      "sha256Verified": true
+    }
+  ],
+  "totalFrames": 40373,
+  "instructionSourceSeconds": 30,
+  "previewSeconds": 30,
+  "hardwareOutput": false
+}

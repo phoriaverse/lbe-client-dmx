@@ -1,0 +1,7 @@
+PASS media/The Shape of Memory.show 278.275s 11131frames
+PASS media/Sit Around the Fire.show 506.05s 20242frames
+PASS media/Second Nature.show 195s 7800frames
+PASS media/Onboarding.show 30s 1200frames
+PASS 8 tube boundary patch, cap, blackout, truncation; frames=40373 peakDMX=113
+(node:76827) ExperimentalWarning: Transform Types is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

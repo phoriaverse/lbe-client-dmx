@@ -11,3 +11,6 @@ coverage/
 # Local source media; the project records the file names.
 media/*
 !media/README.md
+
+# Previous local payloads retained by the reviewed-score installer.
+/backups/

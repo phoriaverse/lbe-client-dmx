@@ -1,0 +1,26 @@
+[
+  {
+    "path": "dmx-client/src/shared/show-file.ts",
+    "url": "https://github.com/phoriaverse/lbe-client-dmx/blob/main/dmx-client/src/shared/show-file.ts",
+    "modifiedDate": "2026-11-24T10:36:36Z",
+    "source": "GitHub connector read of main on 2026-11-26"
+  },
+  {
+    "path": "dmx-client/src/shared/patch.ts",
+    "url": "https://github.com/phoriaverse/lbe-client-dmx/blob/main/dmx-client/src/shared/patch.ts",
+    "modifiedDate": "2026-11-24T09:29:51Z",
+    "source": "GitHub connector read of main on 2026-11-26"
+  },
+  {
+    "path": "dmx-client/src/shared/brightness.ts",
+    "url": "https://github.com/phoriaverse/lbe-client-dmx/blob/main/dmx-client/src/shared/brightness.ts",
+    "modifiedDate": "2026-11-24T09:29:51Z",
+    "source": "GitHub connector read of main on 2026-11-26"
+  },
+  {
+    "path": "dmx-client/src/output.ts",
+    "url": "https://github.com/phoriaverse/lbe-client-dmx/blob/main/dmx-client/src/output.ts",
+    "modifiedDate": "2026-11-24T09:29:51Z",
+    "source": "GitHub connector read of main on 2026-11-26"
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "file": "media/Onboarding.show",
+  "state": "Onboarding",
+  "track": "onboarding",
+  "variation": "gentle-white",
+  "name": "Gentle White Waves",
+  "duration": 30.0,
+  "sourceDuration": 30.0,
+  "frames": 1200,
+  "bytes": 922912,
+  "sha256": "0ee0f7d4cd7a954a9ff837e42333475db891f8e9a578c44a20af3bd47a46c07e",
+  "peakDmxAt50PercentCap": 22,
+  "meanDmx": 12.64,
+  "preview": "preview/onboarding.dmx8"
+}

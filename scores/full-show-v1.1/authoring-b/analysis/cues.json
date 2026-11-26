@@ -1,0 +1,117 @@
+{
+  "tsomAuthoredNeuralWindows": [
+    [
+      42.5,
+      60
+    ],
+    [
+      95,
+      120
+    ],
+    [
+      145,
+      170
+    ],
+    [
+      215,
+      235
+    ]
+  ],
+  "tsomSource": "TheShapeOfMemory.playable / NeuralNetwork and Transition Splat tracks",
+  "reviewJumps": [
+    {
+      "id": "tsom",
+      "name": "The Shape of Memory",
+      "duration": 278.266667,
+      "looks": [
+        "Memory Echo",
+        "Neural Current"
+      ],
+      "context": "tsom-context.mp4",
+      "jumps": [
+        0.0,
+        37.15,
+        40.27,
+        42.5,
+        54.65,
+        60,
+        89.65,
+        95,
+        111.03,
+        114.65,
+        120,
+        139.65,
+        145,
+        157.43,
+        164.65,
+        170,
+        180.1,
+        183.333333,
+        209.65,
+        215,
+        229.65,
+        235,
+        247.1,
+        251.016667
+      ],
+      "measuredEnergyJumps": [
+        40.275,
+        111.025,
+        157.425,
+        180.1,
+        247.1
+      ]
+    },
+    {
+      "id": "satf",
+      "name": "Sit Around the Fire",
+      "duration": 506.033333,
+      "looks": [
+        "Ember Halo",
+        "Rising Embers"
+      ],
+      "context": "satf-context.mp4",
+      "jumps": [
+        0.0,
+        209.8,
+        243.2,
+        282.2,
+        304.8,
+        347.8
+      ],
+      "measuredEnergyJumps": [
+        209.8,
+        243.2,
+        282.2,
+        304.8,
+        347.8
+      ]
+    },
+    {
+      "id": "second-nature",
+      "name": "Second Nature",
+      "duration": 195.0,
+      "looks": [
+        "Tidal Reflection",
+        "Chromatic Rapids"
+      ],
+      "context": "second-nature-context.mp4",
+      "jumps": [
+        0.0,
+        11.8,
+        34.4,
+        113.22,
+        134.5,
+        159.3
+      ],
+      "measuredEnergyJumps": [
+        11.8,
+        34.4,
+        113.225,
+        134.5,
+        159.3
+      ]
+    }
+  ],
+  "otherTracks": "Measured audio envelopes and video colour/motion; no claimed manually authored Unity cue correspondence."
+}

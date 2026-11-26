@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "fps": 40,
+  "clientMaster": 1,
+  "clientCap": 0.5,
+  "sourceMaster": {
+    "a": 0.78,
+    "b": 0.9
+  },
+  "smoothingSeconds": {
+    "colourAttack": 0.35,
+    "colourRelease": 0.6,
+    "intensityAttack": 0.12,
+    "intensityRelease": 0.35
+  },
+  "screenToRearTravelSeconds": {
+    "a": 1.2,
+    "b": 0.8
+  },
+  "fadeInSeconds": 1.5,
+  "fadeOutSeconds": 2.5,
+  "hardwareOutput": false
+}

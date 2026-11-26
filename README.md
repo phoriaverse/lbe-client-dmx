@@ -22,3 +22,9 @@ exclusive access to the adapter.
 The full Introduction now uses the [build-13 eight-tube score](scores/onboarding-v1/VENUE-INTEGRATION.md).
 It previews independently of the black screen video and retains the approved 5.1 timing.
 The short Lissajous rehearsal remains a separate preset.
+
+The [full-show 1.1 integration](scores/full-show-v1.1/VENUE-INTEGRATION.md) adds Trent's selected
+B scores for Second Nature, The Shape of Memory and Sit Around The Fire, plus Gentle White
+Waves for the 30-second captioned Onboarding video. Run `bun run scores:install` in `dmx-client`
+for standalone deployment, or `bun run prepare:full` in the matched display checkout to update
+the full rehearsal. Both integration branches are `feature/full-show-dmx-1-1`.

@@ -1,0 +1,23 @@
+{
+  "source": "/Users/trentino-claw/Developer/CodexCaptures/SoundSpace-ThreeTracks-20261125/Assets/Project/Max Cooper/Shape of Memory/TheShapeOfMemory.playable",
+  "sha256": "a47895a49507ff395a42c6e5771ce5a15807774513db7cc73f0e751e2433367c",
+  "neuralWindowsSeconds": [
+    [
+      42.5,
+      60
+    ],
+    [
+      95,
+      120
+    ],
+    [
+      145,
+      170
+    ],
+    [
+      215,
+      235
+    ]
+  ],
+  "finalActivationSeconds": 251.016667
+}

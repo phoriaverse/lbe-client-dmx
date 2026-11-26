@@ -1,0 +1,84 @@
+{
+  "pixelCount": 128,
+  "gateways": [
+    {
+      "id": "enttec",
+      "name": "ENTTEC Mk2 / TimoLink TX",
+      "host": "enttec-usb"
+    }
+  ],
+  "runs": [
+    {
+      "first": 0,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 1,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 16,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 49,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 32,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 97,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 48,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 145,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 64,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 193,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 80,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 241,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 96,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 289,
+      "order": "RGB",
+      "gamma": 2.2
+    },
+    {
+      "first": 112,
+      "count": 16,
+      "gateway": "enttec",
+      "universe": 1,
+      "channel": 337,
+      "order": "RGB",
+      "gamma": 2.2
+    }
+  ]
+}

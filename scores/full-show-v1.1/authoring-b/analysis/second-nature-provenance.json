@@ -1,0 +1,237 @@
+{
+  "id": "second-nature",
+  "name": "Second Nature",
+  "chapter": 1,
+  "file": "second-nature-silent-preview.mp4",
+  "crop": "",
+  "duration": 195.0,
+  "cueStarts": [],
+  "looks": [
+    "Tidal Reflection",
+    "Chromatic Rapids"
+  ],
+  "sourceVideo": "/Users/trentino-claw/Developer/SoundSpace-AVP-Build85-Local/Assets/StreamingAssets/SoundSpaceAVP/second-nature-silent-preview.mp4",
+  "sourceVideoSHA256": "f28ce87cb5eaef1b88de3bc3eba6ac96f0d6bae14924cd9640a5c3afc017c657",
+  "reviewSource": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/delivery/track-1/PHORIA-SoundSpace-Second-Nature-Neutral-Static-MR-to-VR-Review-V01.mp4",
+  "reviewSourceSHA256": "95762575ca871fbba9478a8d435ed0eb6ea7b4392822d3e9d105edfafba89a04",
+  "samplingFps": 10,
+  "audioFeatureFps": 40,
+  "onsets": [
+    {
+      "seconds": 6.7,
+      "strength": 0.7426
+    },
+    {
+      "seconds": 8.925,
+      "strength": 0.6475
+    },
+    {
+      "seconds": 10.075,
+      "strength": 0.6414
+    },
+    {
+      "seconds": 11.225,
+      "strength": 0.8303
+    },
+    {
+      "seconds": 29.325,
+      "strength": 0.6346
+    },
+    {
+      "seconds": 33.275,
+      "strength": 0.7273
+    },
+    {
+      "seconds": 34.475,
+      "strength": 1.0
+    },
+    {
+      "seconds": 35.875,
+      "strength": 0.5801
+    },
+    {
+      "seconds": 41.225,
+      "strength": 0.6702
+    },
+    {
+      "seconds": 44.4,
+      "strength": 0.6376
+    },
+    {
+      "seconds": 69.725,
+      "strength": 0.7256
+    },
+    {
+      "seconds": 98.9,
+      "strength": 0.6027
+    },
+    {
+      "seconds": 107.15,
+      "strength": 0.6311
+    },
+    {
+      "seconds": 108.325,
+      "strength": 0.5866
+    },
+    {
+      "seconds": 116.0,
+      "strength": 0.5916
+    },
+    {
+      "seconds": 133.025,
+      "strength": 0.6819
+    },
+    {
+      "seconds": 134.175,
+      "strength": 0.8156
+    },
+    {
+      "seconds": 135.55,
+      "strength": 0.6146
+    },
+    {
+      "seconds": 136.7,
+      "strength": 0.8531
+    },
+    {
+      "seconds": 137.8,
+      "strength": 0.6759
+    },
+    {
+      "seconds": 139.2,
+      "strength": 0.6545
+    },
+    {
+      "seconds": 140.625,
+      "strength": 0.6247
+    },
+    {
+      "seconds": 141.95,
+      "strength": 0.7113
+    },
+    {
+      "seconds": 143.2,
+      "strength": 0.8046
+    },
+    {
+      "seconds": 144.3,
+      "strength": 0.7408
+    },
+    {
+      "seconds": 145.475,
+      "strength": 0.8549
+    },
+    {
+      "seconds": 146.725,
+      "strength": 0.7726
+    },
+    {
+      "seconds": 147.875,
+      "strength": 0.5887
+    },
+    {
+      "seconds": 149.025,
+      "strength": 0.6403
+    },
+    {
+      "seconds": 150.15,
+      "strength": 0.5986
+    },
+    {
+      "seconds": 151.275,
+      "strength": 0.7709
+    },
+    {
+      "seconds": 152.45,
+      "strength": 0.8299
+    },
+    {
+      "seconds": 153.725,
+      "strength": 0.6682
+    },
+    {
+      "seconds": 154.85,
+      "strength": 0.8104
+    },
+    {
+      "seconds": 155.975,
+      "strength": 1.0
+    },
+    {
+      "seconds": 157.1,
+      "strength": 1.0
+    },
+    {
+      "seconds": 158.275,
+      "strength": 1.0
+    },
+    {
+      "seconds": 159.425,
+      "strength": 0.945
+    },
+    {
+      "seconds": 160.6,
+      "strength": 0.9423
+    },
+    {
+      "seconds": 161.725,
+      "strength": 0.9202
+    },
+    {
+      "seconds": 162.9,
+      "strength": 1.0
+    },
+    {
+      "seconds": 164.1,
+      "strength": 0.9998
+    },
+    {
+      "seconds": 165.25,
+      "strength": 1.0
+    },
+    {
+      "seconds": 166.375,
+      "strength": 1.0
+    },
+    {
+      "seconds": 167.55,
+      "strength": 1.0
+    },
+    {
+      "seconds": 168.725,
+      "strength": 1.0
+    },
+    {
+      "seconds": 169.85,
+      "strength": 1.0
+    },
+    {
+      "seconds": 171.0,
+      "strength": 1.0
+    },
+    {
+      "seconds": 172.125,
+      "strength": 1.0
+    },
+    {
+      "seconds": 173.25,
+      "strength": 1.0
+    },
+    {
+      "seconds": 174.425,
+      "strength": 0.592
+    },
+    {
+      "seconds": 179.0,
+      "strength": 0.715
+    },
+    {
+      "seconds": 180.925,
+      "strength": 0.6607
+    },
+    {
+      "seconds": 183.05,
+      "strength": 0.6562
+    }
+  ]
+}

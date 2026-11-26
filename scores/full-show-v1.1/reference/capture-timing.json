@@ -1,0 +1,113 @@
+[
+  {
+    "chapter": 1,
+    "captureSettings": {
+      "SOUNDSPACE_TRACK_RENDER": "1",
+      "SOUNDSPACE_TRACK_OUTPUT": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/track-1/full-01",
+      "SOUNDSPACE_TRACK_WIDTH": "3840",
+      "SOUNDSPACE_TRACK_HEIGHT": "2160",
+      "SOUNDSPACE_TRACK_FPS": "30",
+      "SOUNDSPACE_TRACK_SECONDS": "0",
+      "SOUNDSPACE_TRACK_ONLY_CHAPTER": "1",
+      "SOUNDSPACE_TRACK_OFFSET": "0",
+      "SOUNDSPACE_TRACK_MONO": "1",
+      "SOUNDSPACE_TRACK_EXTERNAL_SOUNDTRACK": "1",
+      "SOUNDSPACE_TRACK_PACKAGE": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/plans/track-1.soundspherecamera",
+      "SOUNDSPACE_TRACK_SEED": "1337"
+    },
+    "firstFrame": {
+      "renderMs": 9.6835,
+      "readbackMs": 282.8177,
+      "pipeMs": 64.8421,
+      "monoTransferMs": 0.001,
+      "chapter": 1,
+      "frame": 0,
+      "total": 0,
+      "videoTime": 0.01666667,
+      "elapsed": 8.89075600000002
+    },
+    "captureComplete": {
+      "frames": 5855,
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "secondsPerChapter": 0,
+      "eyeSeparationMetres": 0,
+      "projection": "rectilinear 16:9 mono, camera take defined by original .soundspherecamera package"
+    }
+  },
+  {
+    "chapter": 2,
+    "captureSettings": {
+      "SOUNDSPACE_TRACK_RENDER": "1",
+      "SOUNDSPACE_TRACK_OUTPUT": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/track-2/full-01",
+      "SOUNDSPACE_TRACK_WIDTH": "3840",
+      "SOUNDSPACE_TRACK_HEIGHT": "2160",
+      "SOUNDSPACE_TRACK_FPS": "30",
+      "SOUNDSPACE_TRACK_SECONDS": "0",
+      "SOUNDSPACE_TRACK_ONLY_CHAPTER": "2",
+      "SOUNDSPACE_TRACK_OFFSET": "0",
+      "SOUNDSPACE_TRACK_MONO": "1",
+      "SOUNDSPACE_TRACK_EXTERNAL_SOUNDTRACK": "1",
+      "SOUNDSPACE_TRACK_PACKAGE": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/plans/track-2.soundspherecamera",
+      "SOUNDSPACE_TRACK_SEED": "1337"
+    },
+    "firstFrame": {
+      "renderMs": 7.5715,
+      "readbackMs": 340.1566,
+      "pipeMs": 59.634,
+      "monoTransferMs": 0.0011,
+      "chapter": 2,
+      "frame": 0,
+      "total": 0,
+      "videoTime": 0.012,
+      "elapsed": 13.640369584
+    },
+    "captureComplete": {
+      "frames": 8350,
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "secondsPerChapter": 0,
+      "eyeSeparationMetres": 0,
+      "projection": "rectilinear 16:9 mono, camera take defined by original .soundspherecamera package"
+    }
+  },
+  {
+    "chapter": 3,
+    "captureSettings": {
+      "SOUNDSPACE_TRACK_RENDER": "1",
+      "SOUNDSPACE_TRACK_OUTPUT": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/track-3/full-01",
+      "SOUNDSPACE_TRACK_WIDTH": "3840",
+      "SOUNDSPACE_TRACK_HEIGHT": "2160",
+      "SOUNDSPACE_TRACK_FPS": "30",
+      "SOUNDSPACE_TRACK_SECONDS": "0",
+      "SOUNDSPACE_TRACK_ONLY_CHAPTER": "3",
+      "SOUNDSPACE_TRACK_OFFSET": "0",
+      "SOUNDSPACE_TRACK_MONO": "1",
+      "SOUNDSPACE_TRACK_EXTERNAL_SOUNDTRACK": "1",
+      "SOUNDSPACE_TRACK_PACKAGE": "/Volumes/AVP-Build-Archive/AgentWorkspaces/LBE-Three-Track-Composites-20261125/plans/track-3.soundspherecamera",
+      "SOUNDSPACE_TRACK_SEED": "1337"
+    },
+    "firstFrame": {
+      "renderMs": 85.4963,
+      "readbackMs": 212.6768,
+      "pipeMs": 31.6633,
+      "monoTransferMs": 0.0012,
+      "chapter": 3,
+      "frame": 0,
+      "total": 0,
+      "videoTime": 0.01666667,
+      "elapsed": 9.269582583
+    },
+    "captureComplete": {
+      "frames": 15181,
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "secondsPerChapter": 0,
+      "eyeSeparationMetres": 0,
+      "projection": "rectilinear 16:9 mono, camera take defined by original .soundspherecamera package"
+    }
+  }
+]
