@@ -1,11 +1,11 @@
 {
   "format": "lbe-rig",
   "version": 1,
-  "name": "PavoTube II 30XR — 8 tubes / TimoLink TX",
+  "name": "PavoTube II 30XR \u2014 8 tubes / TimoLink TX",
   "profiles": [
     {
       "id": "pavotube-ii-30xr-rgb8",
-      "name": "Nanlite PavoTube II 30XR · RGB 8bit · 16 pixels",
+      "name": "Nanlite PavoTube II 30XR \u00b7 RGB 8bit \u00b7 16 pixels",
       "pixels": 16,
       "length": 1.145,
       "order": "RGB",
@@ -19,9 +19,9 @@
       "parent": null,
       "transform": {
         "position": [
-          11.7,
+          5.553,
           0.5725,
-          1.3
+          1.9
         ],
         "rotation": [
           0,
@@ -44,9 +44,9 @@
       "parent": null,
       "transform": {
         "position": [
-          9,
+          5.88,
           0.5725,
-          1.3
+          4.026
         ],
         "rotation": [
           0,
@@ -69,9 +69,9 @@
       "parent": null,
       "transform": {
         "position": [
-          5.9,
+          6.795,
           0.5725,
-          1.5
+          5.731
         ],
         "rotation": [
           0,
@@ -94,9 +94,9 @@
       "parent": null,
       "transform": {
         "position": [
-          5.95,
+          8.119,
           0.5725,
-          4.45
+          6.677
         ],
         "rotation": [
           0,
@@ -119,9 +119,9 @@
       "parent": null,
       "transform": {
         "position": [
-          6.05,
+          9.587,
           0.5725,
-          7.05
+          6.677
         ],
         "rotation": [
           0,
@@ -144,9 +144,9 @@
       "parent": null,
       "transform": {
         "position": [
-          8.75,
+          10.911,
           0.5725,
-          6.9
+          5.731
         ],
         "rotation": [
           0,
@@ -169,9 +169,9 @@
       "parent": null,
       "transform": {
         "position": [
-          11.4,
+          11.826,
           0.5725,
-          7.05
+          4.026
         ],
         "rotation": [
           0,
@@ -194,9 +194,9 @@
       "parent": null,
       "transform": {
         "position": [
-          11.7,
+          12.153,
           0.5725,
-          4.25
+          1.9
         ],
         "rotation": [
           0,
@@ -215,7 +215,7 @@
     },
     {
       "id": "intro-screen",
-      "name": "Intro screen · square",
+      "name": "Intro screen \u00b7 square",
       "parent": null,
       "transform": {
         "position": [
@@ -253,7 +253,7 @@
   "chains": [
     {
       "id": "timolink",
-      "name": "Universe 1 — TimoLink TX",
+      "name": "Universe 1 \u2014 TimoLink TX",
       "gateway": "enttec",
       "universe": 1,
       "channel": 1,

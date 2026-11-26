@@ -26,7 +26,6 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { rigOrder } from "../model/patch";
-import { localPixel } from "../model/pixels";
 import { profileById, type RigDocument, type RoomModel, subtree, type VideoSurface } from "../model/rig";
 import { surfaceMesh } from "../model/surfaces";
 import { tidy, type Transform } from "../model/transform";
@@ -35,7 +34,6 @@ import { type NavMode, SceneCamera } from "./sceneCamera";
 
 const DEG = Math.PI / 180;
 const TUBE_RADIUS = 0.016;
-const PIXEL_SIZE = 0.011;
 const CLICK_SLOP = 4;
 const PICK_RADIUS = 6;
 
@@ -398,11 +396,14 @@ export class SceneView {
     body.rotation.z = Math.PI / 2; // cylinders stand on Y; tubes lie along X
     body.userData = { part: true, pickId: id };
 
-    const geo = new THREE.BoxGeometry(PIXEL_SIZE, PIXEL_SIZE, PIXEL_SIZE);
+    // Show each pixel on the diffuser, not as a tiny box buried inside the casing.
+    // The small clearance prevents the selection/body material from hiding the score.
+    const geo = new THREE.CylinderGeometry(TUBE_RADIUS * 1.025, TUBE_RADIUS * 1.025, length / pixels * 0.98, 12);
+    geo.rotateZ(Math.PI / 2);
     const pix = new THREE.InstancedMesh(geo, new THREE.MeshBasicMaterial({ color: 0xffffff }), pixels);
     const m = new THREE.Matrix4();
     for (let i = 0; i < pixels; i++) {
-      m.makeTranslation(...localPixel(i, pixels, length));
+      m.makeTranslation(-length / 2 + (i + 0.5) * length / pixels, 0, 0);
       pix.setMatrixAt(i, m);
       pix.setColorAt(i, COLOURS.pixelOff);
     }

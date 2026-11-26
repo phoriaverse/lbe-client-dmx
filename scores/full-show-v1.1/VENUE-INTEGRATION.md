@@ -7,7 +7,9 @@ The ZIP's SHA-256 is `9a7f8272adcc4e22927d36f488f0156bb99636ec2bbe91e784807a4cc8
 
 The venue patch matches the delivery: eight 16-pixel RGB tubes, bottom to top, universe 1 at
 1/49/97/145/193/241/289/337, gamma 2.2, ENTTEC OUT 1 through TimoLink TX. Room positions match
-the established office rig; the installer checks the address/drive contract without replacing it.
+the established office rig at integration time; the simulator was subsequently rearranged into
+the requested horseshoe, open towards the screen, on 26 November. Tube identities and native
+scores are unchanged. The installer checks the address/drive contract without replacing it.
 Master remains 1 and cap 0.5. Introduction, Seating, ambient and the short Lissajous preset are preserved.
 
 | Journey state | Treatment | Duration | Peak DMX at the venue levels |

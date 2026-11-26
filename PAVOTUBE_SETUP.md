@@ -16,24 +16,25 @@ The software does not change the tubes' mode, address or pairing remotely.
 
 | Tube | Start address | Channel range | Position x, z (metres) |
 | --- | --- | --- | --- |
-| 1 | 1 | 1–48 | 11.70, 1.30 |
-| 2 | 49 | 49–96 | 9.00, 1.30 |
-| 3 | 97 | 97–144 | 5.90, 1.50 |
-| 4 | 145 | 145–192 | 5.95, 4.45 |
-| 5 | 193 | 193–240 | 6.05, 7.05 |
-| 6 | 241 | 241–288 | 8.75, 6.90 |
-| 7 | 289 | 289–336 | 11.40, 7.05 |
-| 8 | 337 | 337–384 | 11.70, 4.25 |
+| 1 | 1 | 1–48 | 5.553, 1.900 |
+| 2 | 49 | 49–96 | 5.880, 4.026 |
+| 3 | 97 | 97–144 | 6.795, 5.731 |
+| 4 | 145 | 145–192 | 8.119, 6.677 |
+| 5 | 193 | 193–240 | 9.587, 6.677 |
+| 6 | 241 | 241–288 | 10.911, 5.731 |
+| 7 | 289 | 289–336 | 11.826, 4.026 |
+| 8 | 337 | 337–384 | 12.153, 1.900 |
 
 All eight are on universe 1. Tube pixel **1 is bottom, 16 is top** (the editor calls these 0–15).
 Pixel p starts at `1 + 48*(tube-1) + 3*(p-1)`, followed by red, green, blue. Channels 385–512
-are zero. Tubes 3, 2 and 1 are at the screen end according to the supplied room notes.
+are zero. Tubes 1 and 8 are now the two ends nearest the screen in the simulator.
 
 The addresses come from the user's previously working TouchDesigner patch. The positions above
-were updated on 24 November 2026 to match the user's eight red circles on the imported atrium
-model: 3–2–1 across the screen end, 4 and 8 midway back, then 5–6–7 across the rear. These are
-visual placement estimates rounded to 5 cm, not a survey. They supersede the original 20 × 10 m
-layout. The DMX patch is unchanged.
+were updated on 26 November 2026 to the requested horseshoe in front of the imported atrium
+screen, open towards the screen. Tubes 1–8 follow the curve from left to right when facing
+the screen; the footprint is about 6.6 m wide and 4.8 m deep. These are simulator placements,
+not surveyed physical positions. They supersede the earlier rectangular eight-circle layout.
+The DMX patch and each tube's recorded animation are unchanged.
 
 The supplied `phoria-atrium-walls-2m.glb` is stored in `dmx-editor/models/` (gitignored). It uses
 metres and Y-up. Overall bounds are about 14.75 × 3.26 × 9.56 m; the floor interior is about
