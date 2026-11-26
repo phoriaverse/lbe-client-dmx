@@ -36,9 +36,20 @@ at the shared server timestamp and fades to black slightly before the room media
 (0.400 s / 0.075 s / 0.100 s respectively). Completion waits for every participant, preserving
 the complete audio tails. No Quest or iPad app rebuild is needed for these data files.
 
-These are pre-baked scores. Their Python authoring source/settings and review movie are retained
-here; they are not added as editable timeline-keyframe sequences in the web editor. The existing
-Introduction and short rehearsal editor presets are unchanged.
+To preview in the office simulator, run `bun run import:full` from `dmx-editor`, then
+`bun run start:pavotube` (or reload the editor if already running). Open http://localhost:8092,
+choose the **Sequence** tab and select a **v1.1** preset. **Play** or scrub the bottom timeline;
+keep **Live** off for simulation. **Sound** enables the matching music when the display repo's
+full-show media has been prepared. Onboarding includes its silent caption video, letterboxed
+for the square virtual screen (the importer needs `ffmpeg`). No DMX hardware
+or control server is needed. A connected lighting client supplies its master/cap to the visual
+preview; the transport shows the multiplier, or 100% when offline.
+
+These are recorded per-pixel scores, not timeline-keyframe authoring. Their Python source/settings
+and review movie are retained here. The importer preserves native payloads, creates local editor
+presets without changing deployed `.show` files, and preserves existing presets on repeat runs.
+The original Introduction and short rehearsal presets remain available. The local generated
+JSON/media are ignored by Git; the checked-in native sources and importer reproduce them.
 
 Validation: every one of the 40,373 frames passes through the current client's parser, patch and
 output with a fake transport and matches the delivered DMX preview bytes. Tests cover frame caps,

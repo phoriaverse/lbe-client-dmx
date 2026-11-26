@@ -9,3 +9,7 @@ models/*
 # A save in flight (written then renamed over project/rig.json).
 project/*.tmp
 project/sequences/*.tmp
+
+# Local simulator copies of the versioned native scores; regenerate with bun run import:full.
+project/pavotube/sequences/full-show-v1-1-*.json
+project/pavotube/sequences/*.tmp

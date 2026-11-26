@@ -28,3 +28,8 @@ B scores for Second Nature, The Shape of Memory and Sit Around The Fire, plus Ge
 Waves for the 30-second captioned Onboarding video. Run `bun run scores:install` in `dmx-client`
 for standalone deployment, or `bun run prepare:full` in the matched display checkout to update
 the full rehearsal. Both integration branches are `feature/full-show-dmx-1-1`.
+
+For a 3D simulation, run `bun run import:full` then `bun run start:pavotube` in `dmx-editor`.
+At http://localhost:8092, open **Sequence**, choose a **v1.1** preset and press **Play**.
+Keep **Live** off; no DMX hardware is required. **Sound** plays the matching local rehearsal
+audio if prepared. The importer preserves existing editor presets and deployed shows.
